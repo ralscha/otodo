@@ -1,0 +1,30 @@
+ http
+    ....
+    .cors()
+      .and()
+      
+      
+
+
+  @Bean
+  @ConditionalOnProperty(name = "app.cors-allow-origins", havingValue = "")
+  CorsConfigurationSource corsConfigurationSource(AppProperties appProperties) {
+    CorsConfiguration configuration = new CorsConfiguration();
+    configuration.setAllowedOrigins(appProperties.getCorsAllowOrigins());
+    configuration.setAllowedMethods(List.of("GET", "POST"));
+    configuration.setAllowedHeaders(
+        List.of(AuthHeaderFilter.HEADER_NAME, HttpHeaders.CONTENT_TYPE));
+    configuration.setExposedHeaders(List.of(AuthHeaderFilter.HEADER_NAME));
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
+  }  
+  
+ 
+  
+  AppProperties.java
+    private List<String> corsAllowOrigins;
+  
+  
+  application.properties
+    app.cors-allow-origins=http://localhost:8100,http://localhost:1234    
