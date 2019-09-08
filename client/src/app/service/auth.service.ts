@@ -1,9 +1,8 @@
 import {Injectable} from '@angular/core';
-import {Observable, of} from 'rxjs';
+import {from, Observable, of} from 'rxjs';
 import {HttpClient, HttpErrorResponse, HttpParams, HttpResponse} from '@angular/common/http';
 import {catchError, filter, map, switchMap, tap} from 'rxjs/operators';
 import {AppDatabase} from '../model/app-database';
-import {fromPromise} from 'rxjs/internal-compatibility';
 import {ConnectionService, ConnectionState} from './connection.service';
 
 
@@ -19,7 +18,7 @@ export class AuthService {
     this.connectionService.connectionState()
       .pipe(
         filter(cs => cs.isOnlineAuthenticated()),
-        switchMap(() => fromPromise(this.appDatabase.invalidAuthenticationTokens.toArray())),
+        switchMap(() => from(this.appDatabase.invalidAuthenticationTokens.toArray())),
         filter(tokens => tokens.length > 0),
         switchMap(tokens => this.httpClient.post<void>('/be/invalidate-sessions', tokens))
       )
@@ -45,7 +44,7 @@ export class AuthService {
           await this.deleteTokens();
           this.connectionService.logout(true);
         }),
-        catchError(error => fromPromise(this.handleLogoutError(error)))
+        catchError(error => from(this.handleLogoutError(error)))
       );
   }
 

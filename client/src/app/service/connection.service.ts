@@ -1,9 +1,8 @@
 import {Injectable} from '@angular/core';
-import {defer, fromEvent, iif, interval, merge, Observable, of, Subject} from 'rxjs';
+import {defer, from, fromEvent, iif, interval, merge, Observable, of, Subject} from 'rxjs';
 import {catchError, distinctUntilChanged, map, mapTo, shareReplay, switchMap, takeWhile} from 'rxjs/operators';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {AppDatabase} from '../model/app-database';
-import {fromPromise} from 'rxjs/internal-compatibility';
 
 enum Connection {
   OFFLINE = 'OFFLINE', ONLINE = 'ONLINE'
@@ -61,7 +60,7 @@ export class ConnectionService {
   constructor(private readonly httpClient: HttpClient,
               private readonly appDatabase: AppDatabase) {
 
-    this.authenticationToken$ = defer(() => fromPromise(this.appDatabase.authenticationToken.limit(1).first())
+    this.authenticationToken$ = defer(() => from(this.appDatabase.authenticationToken.limit(1).first())
       .pipe(
         map(token => token ? new ConnectionState(Connection.OFFLINE, Authentication.USER) :
           new ConnectionState(Connection.OFFLINE, null))

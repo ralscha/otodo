@@ -3,9 +3,8 @@ import {AppDatabase} from './model/app-database';
 import {HttpClient} from '@angular/common/http';
 import {ConnectionService} from './service/connection.service';
 import {catchError, filter, mapTo, mergeMap, switchMap, take} from 'rxjs/operators';
-import {fromPromise} from 'rxjs/internal-compatibility';
 import {environment} from '../environments/environment';
-import {iif, noop} from 'rxjs';
+import {from, iif, noop} from 'rxjs';
 
 @Injectable()
 export class AppGlobalErrorhandler implements ErrorHandler {
@@ -17,7 +16,7 @@ export class AppGlobalErrorhandler implements ErrorHandler {
     this.connectionService.connectionState()
       .pipe(
         filter(cs => cs.isOnline()),
-        switchMap(() => fromPromise(this.appDatabase.errors.toArray())),
+        switchMap(() => from(this.appDatabase.errors.toArray())),
         filter(errors => errors.length > 0),
         switchMap(errors => this.httpClient.post<void>('/be/client-error', errors).pipe(mapTo(errors))),
         switchMap(errors => this.appDatabase.errors.bulkDelete(errors.map(error => error.id)))

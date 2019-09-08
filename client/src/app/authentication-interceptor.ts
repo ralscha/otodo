@@ -1,8 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
-import {Observable, throwError} from 'rxjs';
+import {from, Observable, throwError} from 'rxjs';
 import {AppDatabase} from './model/app-database';
-import {fromPromise} from 'rxjs/internal-compatibility';
 import {catchError, mergeMap} from 'rxjs/operators';
 import {Router} from '@angular/router';
 
@@ -29,7 +28,7 @@ export class AuthenticationInterceptor implements HttpInterceptor {
       return this.appDatabase.authenticationToken.limit(1).first();
     };
 
-    return fromPromise(tokenGetter()).pipe(mergeMap(
+    return from(tokenGetter()).pipe(mergeMap(
       (token: string) => {
 
         let nextHandle: Observable<HttpEvent<any>>;
