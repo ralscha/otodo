@@ -16,7 +16,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.jooq.DSLContext;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.CredentialsExpiredException;
@@ -26,12 +25,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 
 import ch.rasc.otodo.config.AppProperties;
 
-@Component
 public class AuthHeaderFilter extends GenericFilterBean {
 
   public final static String HEADER_NAME = "x-authentication";
@@ -50,7 +47,6 @@ public class AuthHeaderFilter extends GenericFilterBean {
     this.updateLastAccessQueue = new ConcurrentLinkedQueue<>();
   }
 
-  @Scheduled(fixedDelayString = "PT15S")
   void updateLastAccess() {
     if (!this.updateLastAccessQueue.isEmpty()) {
       Set<String> appSessionIds = new HashSet<>();

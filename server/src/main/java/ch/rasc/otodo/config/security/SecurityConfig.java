@@ -2,10 +2,11 @@ package ch.rasc.otodo.config.security;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.jooq.DSLContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -14,23 +15,35 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import ch.rasc.otodo.config.AppProperties;
+
 @Configuration
 class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-  @Autowired
-  private AuthHeaderFilter authHeaderFilter;
+  private final AppLoginSuccessHandler appLoginSuccessHandler;
 
-  @Autowired
-  private AppLoginSuccessHandler appLoginSuccessHandler;
+  private final AppLogoutSuccessHandler appLogoutSuccessHandler;
 
-  @Autowired
-  private AppLogoutSuccessHandler appLogoutSuccessHandler;
+  private final AuthHeaderFilter authHeaderFilter;
 
+  public SecurityConfig(AppLoginSuccessHandler appLoginSuccessHandler,
+      AppLogoutSuccessHandler appLogoutSuccessHandler, DSLContext dsl,
+      AppProperties appProperties) {
+    this.appLoginSuccessHandler = appLoginSuccessHandler;
+    this.appLogoutSuccessHandler = appLogoutSuccessHandler;
+    this.authHeaderFilter = new AuthHeaderFilter(dsl, appProperties);
+  }
+
+  @Scheduled(fixedDelayString = "PT15S")
+  void updateLastAccess() {
+    this.authHeaderFilter.updateLastAccess();
+  }
+  
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     var pathPrefix = "/be";
 
-    // @formatter:off
+  // @formatter:off
     http
     .headers().defaultsDisabled().cacheControl()
       .and().and()
