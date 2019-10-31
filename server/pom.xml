@@ -93,13 +93,13 @@
 			<groupId>org.testcontainers</groupId>
 			<artifactId>mariadb</artifactId>
 			<scope>test</scope>		
-			<version>1.12.1</version>
+			<version>1.12.3</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>com.icegreen</groupId>
 			<artifactId>greenmail</artifactId>
-			<version>1.5.10</version>
+			<version>1.5.11</version>
 			<scope>test</scope>
 			<exclusions>
 				<exclusion>
@@ -147,7 +147,7 @@
 					<plugin>
 						<groupId>org.jooq</groupId>
 						<artifactId>jooq-codegen-maven</artifactId>
-						<version>3.12.1</version>
+						<version>3.12.2</version>
 						<executions>
 							<execution>
 								<id>generate-jooq-sources</id>
@@ -192,7 +192,7 @@
 							<dependency>
 								<groupId>org.jooq</groupId>
 								<artifactId>jooq-meta-extensions</artifactId>
-								<version>3.12.1</version>
+								<version>3.12.2</version>
 							</dependency>
 						</dependencies>
 					</plugin>
@@ -206,7 +206,7 @@
 					<plugin>
 						<groupId>org.jooq</groupId>
 						<artifactId>jooq-codegen-maven</artifactId>
-						<version>3.12.1</version>
+						<version>3.12.2</version>
 						<executions>
 							<execution>
 								<id>generate-jooq-sources</id>
@@ -257,7 +257,7 @@
 							<dependency>
 								<groupId>org.jooq</groupId>
 								<artifactId>jooq-meta-extensions</artifactId>
-								<version>3.12.1</version>
+								<version>3.12.2</version>
 							</dependency>
 						</dependencies>
 					</plugin>
