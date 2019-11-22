@@ -14,7 +14,7 @@ export class AccountPage {
 
   submitError: string = null;
 
-  @ViewChild('deleteForm', {static: false})
+  @ViewChild('deleteForm')
   deleteForm: NgForm;
 
   constructor(private readonly navCtrl: NavController,

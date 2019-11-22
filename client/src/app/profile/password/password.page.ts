@@ -14,7 +14,7 @@ export class PasswordPage {
 
   submitError: string = null;
 
-  @ViewChild('changeForm', {static: false})
+  @ViewChild('changeForm')
   changeForm: NgForm;
 
   constructor(private readonly profileService: ProfileService,
