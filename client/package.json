@@ -24,7 +24,7 @@
     "@angular/router": "8.2.14",
     "@angular/service-worker": "8.2.14",
     "@ionic/angular": "4.11.5",
-    "date-fns": "2.8.0",
+    "date-fns": "2.8.1",
     "dexie": "2.0.4",
     "ngx-custom-validators": "8.0.0",
     "pwacompat": "2.0.10",
