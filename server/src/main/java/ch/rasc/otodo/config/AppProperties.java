@@ -43,26 +43,6 @@ public class AppProperties {
   private String defaultEmailSender;
 
   /**
-   * Number of failed login attempts until account will be locked.<br>
-   * Setting this property to null disables automatic locking.
-   * <p>
-   * Default: 10
-   */
-  @Nullable
-  private Integer loginLockAttempts;
-
-  /**
-   * How long the account will be locked after failed logins.<br>
-   * When this property is null and {@link #loginLockAttempts} is set, the application
-   * will lock the account forever.<br>
-   * Has no effect when {@link #loginLockAttempts} is null.
-   * <p>
-   * Default: 30 minutes
-   */
-  @Nullable
-  private Duration loginLockDuration;
-
-  /**
    * How long after the last access an user is going to be inactivated
    * <p>
    * Default: 365d
@@ -117,22 +97,6 @@ public class AppProperties {
 
   public void setDefaultEmailSender(String defaultEmailSender) {
     this.defaultEmailSender = defaultEmailSender;
-  }
-
-  public Integer getLoginLockAttempts() {
-    return this.loginLockAttempts;
-  }
-
-  public void setLoginLockAttempts(Integer loginLockAttempts) {
-    this.loginLockAttempts = loginLockAttempts;
-  }
-
-  public Duration getLoginLockDuration() {
-    return this.loginLockDuration;
-  }
-
-  public void setLoginLockDuration(Duration loginLockDuration) {
-    this.loginLockDuration = loginLockDuration;
   }
 
   public Duration getInactiveUserMaxAge() {

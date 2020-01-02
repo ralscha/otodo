@@ -5,6 +5,5 @@ export interface User {
   authority: string;
   enabled: boolean;
   expired: boolean;
-  locked: boolean;
   admin: boolean;
 }

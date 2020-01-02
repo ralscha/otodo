@@ -1,7 +1,5 @@
 package ch.rasc.otodo.dto;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -23,8 +21,6 @@ public class User {
   private boolean enabled;
 
   private boolean expired;
-
-  private boolean locked;
 
   private boolean admin;
 
@@ -76,14 +72,6 @@ public class User {
     this.expired = expired;
   }
 
-  public boolean isLocked() {
-    return this.locked;
-  }
-
-  public void setLocked(boolean locked) {
-    this.locked = locked;
-  }
-
   public boolean isAdmin() {
     return this.admin;
   }
@@ -92,7 +80,7 @@ public class User {
     this.admin = admin;
   }
 
-  public User(String id, AppUserRecord record, Duration loginLockDuration) {
+  public User(String id, AppUserRecord record) {
     this.id = id;
     this.email = record.getEmail();
     this.lastAccess = record.getLastAccess() != null
@@ -101,8 +89,6 @@ public class User {
     this.authority = record.getAuthority();
     this.enabled = record.getEnabled();
     this.expired = record.getExpired() != null;
-    this.locked = record.getLockedOut() != null && (loginLockDuration == null
-        || record.getLockedOut().isAfter(LocalDateTime.now().minus(loginLockDuration)));
     this.admin = "ADMIN".equals(record.getAuthority());
   }
 

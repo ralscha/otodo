@@ -24,7 +24,6 @@
       <ion-select-option value="disabled">Disabled Users</ion-select-option>
       <ion-select-option value="enabled">Enabled Users</ion-select-option>
       <ion-select-option value="inactive">Inactive Users</ion-select-option>
-      <ion-select-option value="locked">Locked Users</ion-select-option>
       <ion-select-option value="admin">Admin Users</ion-select-option>
     </ion-select>
   </ion-item>
@@ -45,7 +44,6 @@
         <ion-item-options *ngIf="!user.admin" side="end">
           <ion-item-option (click)="activate(user, slidingItem)" *ngIf="user.expired">Activate</ion-item-option>
           <ion-item-option (click)="disable(user, slidingItem)" *ngIf="user.enabled">Disable</ion-item-option>
-          <ion-item-option (click)="unlock(user, slidingItem)" *ngIf="user.locked">Unlock</ion-item-option>
           <ion-item-option (click)="enable(user, slidingItem)" *ngIf="!user.enabled">Enable</ion-item-option>
           <ion-item-option (click)="delete(user, slidingItem)" *ngIf="!user.enabled">Delete</ion-item-option>
         </ion-item-options>

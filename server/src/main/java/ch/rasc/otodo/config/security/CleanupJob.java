@@ -44,10 +44,8 @@ public class CleanupJob {
         .execute();
 
     // Delete all email change requests where the confirmation token is invalid
-    this.dsl.update(APP_USER)
-        .set(APP_USER.CONFIRMATION_TOKEN_CREATED, (LocalDateTime) null)
-        .set(APP_USER.CONFIRMATION_TOKEN, (String) null)
-        .set(APP_USER.EMAIL_NEW, (String) null)
+    this.dsl.update(APP_USER).setNull(APP_USER.CONFIRMATION_TOKEN_CREATED)
+        .setNull(APP_USER.CONFIRMATION_TOKEN).setNull(APP_USER.EMAIL_NEW)
         .where(
             APP_USER.EMAIL_NEW.isNotNull()
                 .and(APP_USER.CONFIRMATION_TOKEN_CREATED.le(LocalDateTime.now()
@@ -57,7 +55,7 @@ public class CleanupJob {
     // Inactivate all users where the last access was older than the configured max age
     if (this.appProperties.getInactiveUserMaxAge() != null) {
       this.dsl.update(APP_USER).set(APP_USER.EXPIRED, LocalDateTime.now())
-          .set(APP_USER.PASSWORD_HASH, (String) null)
+          .setNull(APP_USER.PASSWORD_HASH)
           .where(APP_USER.LAST_ACCESS
               .le(LocalDateTime.now().minus(this.appProperties.getInactiveUserMaxAge())))
           .execute();

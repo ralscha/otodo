@@ -49,12 +49,6 @@ export class UsersPage implements OnInit {
       .subscribe(() => user.enabled = true);
   }
 
-  unlock(user: User, slidingItem: IonItemSliding) {
-    slidingItem.close();
-    this.httpClient.post<void>('/be/admin/unlock', user.id)
-      .subscribe(() => user.locked = false);
-  }
-
   delete(user: User, slidingItem: IonItemSliding) {
     slidingItem.close();
     this.httpClient.post<void>('/be/admin/delete', user.id)
@@ -86,9 +80,6 @@ export class UsersPage implements OnInit {
           break;
         case 'inactive':
           filterFns.push(user => user.expired);
-          break;
-        case 'locked':
-          filterFns.push(user => user.locked);
           break;
         case 'admin':
           filterFns.push(user => user.admin);

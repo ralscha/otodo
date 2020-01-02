@@ -1,10 +1,8 @@
 package ch.rasc.otodo.config.security;
 
-import org.jooq.DSLContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,8 +13,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 
-import ch.rasc.otodo.config.AppProperties;
-
 @Configuration
 class SecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -24,15 +20,10 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   private final AuthHeaderFilter authHeaderFilter;
 
-  public SecurityConfig(AppLogoutSuccessHandler appLogoutSuccessHandler, DSLContext dsl,
-      AppProperties appProperties) {
+  public SecurityConfig(AppLogoutSuccessHandler appLogoutSuccessHandler,
+      SessionCacheService sessionCacheService) {
     this.appLogoutSuccessHandler = appLogoutSuccessHandler;
-    this.authHeaderFilter = new AuthHeaderFilter(dsl, appProperties);
-  }
-
-  @Scheduled(fixedDelayString = "PT15S")
-  void updateLastAccess() {
-    this.authHeaderFilter.updateLastAccess();
+    this.authHeaderFilter = new AuthHeaderFilter(sessionCacheService);
   }
 
   @Bean

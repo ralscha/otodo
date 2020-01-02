@@ -77,63 +77,35 @@ class AuthController {
     if (appUserRecord != null) {
       boolean pwMatches = this.passwordEncoder.matches(password,
           appUserRecord.getPasswordHash());
-      if (pwMatches) {
-        if (appUserRecord.getEnabled().booleanValue()
-            && (appUserRecord.getLockedOut() == null
-                || (this.appProperties.getLoginLockDuration() != null
-                    && appUserRecord.getLockedOut()
-                        .isBefore(LocalDateTime.now()
-                            .minus(this.appProperties.getLoginLockDuration()))))
-            && appUserRecord.getExpired() == null) {
+      if (pwMatches && appUserRecord.getEnabled().booleanValue()
+          && appUserRecord.getExpired() == null) {
 
-          String sessionId = this.tokenService.createToken();
+        String sessionId = this.tokenService.createToken();
 
-          this.dsl.transaction(txConf -> {
-            try (var txdsl = DSL.using(txConf)) {
-              LocalDateTime now = LocalDateTime.now();
+        this.dsl.transaction(txConf -> {
+          try (var txdsl = DSL.using(txConf)) {
+            LocalDateTime now = LocalDateTime.now();
 
-              String ua = request.getHeader("user-agent");
-              if (ua != null) {
-                ua = ua.substring(0, Math.min(255, ua.length()));
-              }
-
-              AppSessionRecord record = this.dsl.newRecord(APP_SESSION);
-              record.setId(sessionId);
-              record.setAppUserId(appUserRecord.getId());
-              record.setLastAccess(now);
-              record.setIp(request.getRemoteAddr());
-              record.setUserAgent(ua);
-              record.store();
-
-              this.dsl.update(APP_USER).set(APP_USER.LOCKED_OUT, (LocalDateTime) null)
-                  .set(APP_USER.FAILED_LOGINS, (Integer) null)
-                  .set(APP_USER.LAST_ACCESS, now)
-                  .where(APP_USER.ID.eq(appUserRecord.getId())).execute();
+            String ua = request.getHeader("user-agent");
+            if (ua != null) {
+              ua = ua.substring(0, Math.min(255, ua.length()));
             }
-          });
 
-          return ResponseEntity.ok().header(AuthHeaderFilter.HEADER_NAME, sessionId)
-              .body(appUserRecord.getAuthority());
-        }
-      }
-      else {
-        Integer failedLogins = appUserRecord.get(APP_USER.FAILED_LOGINS);
-        if (failedLogins == null) {
-          failedLogins = 1;
-        }
-        else {
-          failedLogins++;
-        }
+            AppSessionRecord record = this.dsl.newRecord(APP_SESSION);
+            record.setId(sessionId);
+            record.setAppUserId(appUserRecord.getId());
+            record.setLastAccess(now);
+            record.setIp(request.getRemoteAddr());
+            record.setUserAgent(ua);
+            record.store();
 
-        if (failedLogins >= this.appProperties.getLoginLockAttempts()) {
-          this.dsl.update(APP_USER).set(APP_USER.LOCKED_OUT, LocalDateTime.now())
-              .set(APP_USER.FAILED_LOGINS, failedLogins)
-              .where(APP_USER.ID.eq(appUserRecord.getId())).execute();
-        }
-        else {
-          this.dsl.update(APP_USER).set(APP_USER.FAILED_LOGINS, failedLogins)
-              .where(APP_USER.ID.eq(appUserRecord.getId())).execute();
-        }
+            this.dsl.update(APP_USER).set(APP_USER.LAST_ACCESS, now)
+                .where(APP_USER.ID.eq(appUserRecord.getId())).execute();
+          }
+        });
+
+        return ResponseEntity.ok().header(AuthHeaderFilter.HEADER_NAME, sessionId)
+            .body(appUserRecord.getAuthority());
       }
     }
     else {
@@ -182,8 +154,6 @@ class AuthController {
     record.setConfirmationToken(confirmationToken);
     record.setConfirmationTokenCreated(LocalDateTime.now());
     record.setExpired(null);
-    record.setFailedLogins(null);
-    record.setLockedOut(null);
     record.setLastAccess(null);
     record.setPasswordResetToken(null);
     record.setPasswordResetTokenCreated(null);
@@ -208,9 +178,9 @@ class AuthController {
           .minus(this.appProperties.getSignupNotConfirmedUserMaxAge()))) {
 
         this.dsl.update(APP_USER).set(APP_USER.ENABLED, true)
-            .set(APP_USER.CONFIRMATION_TOKEN, (String) null)
-            .set(APP_USER.CONFIRMATION_TOKEN_CREATED, (LocalDateTime) null)
-            .where(APP_USER.ID.equal(userId)).execute();
+            .setNull(APP_USER.CONFIRMATION_TOKEN)
+            .setNull(APP_USER.CONFIRMATION_TOKEN_CREATED).where(APP_USER.ID.equal(userId))
+            .execute();
 
         return true;
       }
@@ -265,16 +235,16 @@ class AuthController {
 
       if (tokenCreated != null && tokenCreated.isAfter(
           LocalDateTime.now().minus(this.appProperties.getPasswordResetTokenMaxAge()))) {
-        this.dsl.update(APP_USER).set(APP_USER.PASSWORD_RESET_TOKEN, (String) null)
-            .set(APP_USER.PASSWORD_RESET_TOKEN_CREATED, (LocalDateTime) null)
+        this.dsl.update(APP_USER).setNull(APP_USER.PASSWORD_RESET_TOKEN)
+            .setNull(APP_USER.PASSWORD_RESET_TOKEN_CREATED)
             .set(APP_USER.PASSWORD_HASH, this.passwordEncoder.encode(password))
             .where(APP_USER.ID.equal(userId)).execute();
         return null;
       }
 
-      this.dsl.update(APP_USER).set(APP_USER.PASSWORD_RESET_TOKEN, (String) null)
-          .set(APP_USER.PASSWORD_RESET_TOKEN_CREATED, (LocalDateTime) null)
-          .where(APP_USER.ID.equal(userId)).execute();
+      this.dsl.update(APP_USER).setNull(APP_USER.PASSWORD_RESET_TOKEN)
+          .setNull(APP_USER.PASSWORD_RESET_TOKEN_CREATED).where(APP_USER.ID.equal(userId))
+          .execute();
     }
 
     return ResetPasswordResponse.INVALID;

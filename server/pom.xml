@@ -244,13 +244,11 @@
 											<outputCatalogToDefault>true</outputCatalogToDefault>
 											<forcedTypes>
 												<forcedType>
-													<name>boolean</name>
-													<types>TINYINT</types>
-												</forcedType>
-												<forcedType>
-													<name>long</name>
-													<types>BIGINT</types>
-												</forcedType>												
+													<name>BOOLEAN</name>
+													<includeTypes>(?i:TINYINT\(1\))</includeTypes>
+													<nullability>ALL</nullability>
+													<objectType>ALL</objectType>
+												</forcedType>											
 											</forcedTypes>
 										</database>
 										<target>

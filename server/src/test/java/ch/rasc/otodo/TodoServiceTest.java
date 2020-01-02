@@ -249,12 +249,11 @@ class TodoServiceTest extends AbstractBaseTest {
   private void insertAnotherUser() {
     getDsl()
         .insertInto(APP_USER, APP_USER.EMAIL, APP_USER.PASSWORD_HASH, APP_USER.AUTHORITY,
-            APP_USER.ENABLED, APP_USER.EXPIRED, APP_USER.FAILED_LOGINS,
-            APP_USER.LOCKED_OUT, APP_USER.LAST_ACCESS, APP_USER.PASSWORD_RESET_TOKEN,
-            APP_USER.PASSWORD_RESET_TOKEN_CREATED, APP_USER.CONFIRMATION_TOKEN,
-            APP_USER.CONFIRMATION_TOKEN_CREATED)
+            APP_USER.ENABLED, APP_USER.EXPIRED, APP_USER.LAST_ACCESS,
+            APP_USER.PASSWORD_RESET_TOKEN, APP_USER.PASSWORD_RESET_TOKEN_CREATED,
+            APP_USER.CONFIRMATION_TOKEN, APP_USER.CONFIRMATION_TOKEN_CREATED)
         .values("another@test.com", getPasswordEncoder().encode("another"), "USER", true,
-            null, null, null, null, null, null, null, null)
+            null, null, null, null, null, null)
         .execute();
   }
 

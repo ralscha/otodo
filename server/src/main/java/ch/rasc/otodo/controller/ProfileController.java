@@ -5,6 +5,7 @@ import static ch.rasc.otodo.db.tables.AppUser.APP_USER;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,6 +15,7 @@ import javax.validation.constraints.NotEmpty;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.boot.info.BuildProperties;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,6 +34,7 @@ import com.codahale.passpol.Status;
 import ch.rasc.otodo.config.AppProperties;
 import ch.rasc.otodo.config.security.AppUserDetail;
 import ch.rasc.otodo.config.security.AuthHeaderFilter;
+import ch.rasc.otodo.config.security.SessionCacheInvalidateEvent;
 import ch.rasc.otodo.dto.SessionInfo;
 import ch.rasc.otodo.service.EmailService;
 import ch.rasc.otodo.service.TokenService;
@@ -55,9 +58,12 @@ public class ProfileController {
 
   private final BuildProperties buildProperties;
 
+  private final ApplicationEventPublisher publisher;
+
   public ProfileController(DSLContext dsl, PasswordEncoder passwordEncoder,
       TokenService tokenService, EmailService emailService, AppProperties appProperties,
-      PasswordPolicy passwordPolicy, BuildProperties buildProperties) {
+      PasswordPolicy passwordPolicy, BuildProperties buildProperties,
+      ApplicationEventPublisher publisher) {
     this.dsl = dsl;
     this.passwordEncoder = passwordEncoder;
     this.tokenService = tokenService;
@@ -65,6 +71,7 @@ public class ProfileController {
     this.appProperties = appProperties;
     this.passwordPolicy = passwordPolicy;
     this.buildProperties = buildProperties;
+    this.publisher = publisher;
   }
 
   enum ChangePasswordResponse {
@@ -110,7 +117,20 @@ public class ProfileController {
     return this.dsl.transactionResult(txConf -> {
       try (var txdsl = DSL.using(txConf)) {
         if (passwordMatches(txdsl, user.getAppUserId(), password)) {
+
+          // delete all sessions
+          Set<String> sessionIds = txdsl.select(APP_SESSION.ID).from(APP_SESSION)
+              .where(APP_SESSION.APP_USER_ID.eq(user.getAppUserId()))
+              .fetchSet(APP_SESSION.ID);
+          if (!sessionIds.isEmpty()) {
+            this.publisher
+                .publishEvent(SessionCacheInvalidateEvent.ofSessionIds(sessionIds));
+          }
+
           txdsl.delete(APP_USER).where(APP_USER.ID.eq(user.getAppUserId())).execute();
+          this.publisher
+              .publishEvent(SessionCacheInvalidateEvent.ofUserId(user.getAppUserId()));
+
           return true;
         }
 
@@ -180,19 +200,17 @@ public class ProfileController {
       if (tokenCreated != null && tokenCreated.isAfter(LocalDateTime.now()
           .minus(this.appProperties.getSignupNotConfirmedUserMaxAge()))) {
 
-        this.dsl.update(APP_USER).set(APP_USER.CONFIRMATION_TOKEN, (String) null)
-            .set(APP_USER.CONFIRMATION_TOKEN_CREATED, (LocalDateTime) null)
-            .set(APP_USER.EMAIL, APP_USER.EMAIL_NEW)
-            .set(APP_USER.EMAIL_NEW, (String) null).where(APP_USER.ID.equal(userId))
-            .execute();
-
+        this.dsl.update(APP_USER).setNull(APP_USER.CONFIRMATION_TOKEN)
+            .setNull(APP_USER.CONFIRMATION_TOKEN_CREATED)
+            .set(APP_USER.EMAIL, APP_USER.EMAIL_NEW).setNull(APP_USER.EMAIL_NEW)
+            .where(APP_USER.ID.equal(userId)).execute();
+        this.publisher.publishEvent(SessionCacheInvalidateEvent.ofUserId(userId));
         return true;
       }
 
-      this.dsl.update(APP_USER).set(APP_USER.CONFIRMATION_TOKEN, (String) null)
-          .set(APP_USER.CONFIRMATION_TOKEN_CREATED, (LocalDateTime) null)
-          .set(APP_USER.EMAIL_NEW, (String) null).where(APP_USER.ID.equal(userId))
-          .execute();
+      this.dsl.update(APP_USER).setNull(APP_USER.CONFIRMATION_TOKEN)
+          .setNull(APP_USER.CONFIRMATION_TOKEN_CREATED).setNull(APP_USER.EMAIL_NEW)
+          .where(APP_USER.ID.equal(userId)).execute();
     }
 
     return false;
@@ -216,9 +234,12 @@ public class ProfileController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteSession(@RequestBody @NotEmpty String sessionId,
       @AuthenticationPrincipal AppUserDetail user) {
-    this.dsl.delete(APP_SESSION).where(
+    int count = this.dsl.delete(APP_SESSION).where(
         APP_SESSION.ID.eq(sessionId).and(APP_SESSION.APP_USER_ID.eq(user.getAppUserId())))
         .execute();
+    if (count == 1) {
+      this.publisher.publishEvent(SessionCacheInvalidateEvent.ofSessionId(sessionId));
+    }
   }
 
   private boolean passwordMatches(DSLContext d, long appUserId, String password) {

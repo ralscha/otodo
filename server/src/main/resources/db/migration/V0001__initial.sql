@@ -6,8 +6,6 @@ CREATE TABLE app_user (
     authority        VARCHAR(10) NOT NULL,
     enabled          BOOLEAN NOT NULL,
     expired          TIMESTAMP NULL,
-    failed_logins    INTEGER,
-    locked_out       TIMESTAMP NULL,    
     last_access      TIMESTAMP NULL,
     confirmation_token           CHAR(35),
     confirmation_token_created   TIMESTAMP NULL,
