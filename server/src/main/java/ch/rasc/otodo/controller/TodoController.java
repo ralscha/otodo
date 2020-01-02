@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ch.rasc.otodo.config.security.JooqUserDetails;
+import ch.rasc.otodo.config.security.AppUserDetail;
 import ch.rasc.otodo.dto.Todo;
 import ch.rasc.otodo.dto.TodoSyncRequest;
 import ch.rasc.otodo.dto.TodoSyncResponse;
@@ -36,13 +36,12 @@ class TodoController {
   }
 
   @GetMapping("syncview")
-  public Map<Long, Long> getSyncView(
-      @AuthenticationPrincipal JooqUserDetails userDetails) {
+  public Map<Long, Long> getSyncView(@AuthenticationPrincipal AppUserDetail userDetails) {
 
     Map<Long, Long> result = new HashMap<>();
 
     this.dsl.select(TODO.ID, TODO.UPDATED).from(TODO)
-        .where(TODO.APP_USER_ID.eq(userDetails.getUserDbId())).fetch()
+        .where(TODO.APP_USER_ID.eq(userDetails.getAppUserId())).fetch()
         .forEach(record -> result.put(record.get(TODO.ID),
             record.get(TODO.UPDATED).toEpochSecond(ZoneOffset.UTC)));
 
@@ -51,13 +50,13 @@ class TodoController {
 
   @PostMapping("sync")
   public TodoSyncResponse sync(@RequestBody TodoSyncRequest sync,
-      @AuthenticationPrincipal JooqUserDetails userDetails) {
+      @AuthenticationPrincipal AppUserDetail userDetails) {
     Set<Long> removed = null;
     Map<Long, Long> updated = null;
     Map<Long, NewId> inserted = null;
     List<Todo> get = new ArrayList<>();
 
-    long loggedInUserId = userDetails.getUserDbId();
+    long loggedInUserId = userDetails.getAppUserId();
 
     // delete
     if (sync.getRemoved() != null && !sync.getRemoved().isEmpty()) {

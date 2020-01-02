@@ -43,8 +43,9 @@ class AdminController {
   @GetMapping("/users")
   public List<User> fetchUsers() {
     var result = this.dsl.selectFrom(APP_USER).fetch();
-    return result.stream().map(user -> new User(this.hashids.encode(user.getId()),
-        user, this.loginLockDuration)).collect(Collectors.toList());
+    return result.stream().map(
+        user -> new User(this.hashids.encode(user.getId()), user, this.loginLockDuration))
+        .collect(Collectors.toList());
   }
 
   @PostMapping("/unlock")

@@ -16,15 +16,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.jooq.DSLContext;
-import org.springframework.security.authentication.AccountExpiredException;
-import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
-import org.springframework.security.authentication.CredentialsExpiredException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.LockedException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsChecker;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.filter.GenericFilterBean;
 
 import ch.rasc.otodo.config.AppProperties;
@@ -36,8 +28,6 @@ public class AuthHeaderFilter extends GenericFilterBean {
   private final DSLContext dsl;
 
   private final AppProperties appProperties;
-
-  private final UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
 
   private final ConcurrentLinkedQueue<Ids> updateLastAccessQueue;
 
@@ -85,39 +75,28 @@ public class AuthHeaderFilter extends GenericFilterBean {
         if (lastAccess.plus(this.appProperties.getInactiveSessionMaxAge())
             .isAfter(LocalDateTime.now())) {
 
-          try {
-            Long appUserId = sessionRecord.get(APP_SESSION.APP_USER_ID);
-            var appUserRecord = this.dsl
-                .select(APP_USER.ID, APP_USER.EMAIL, APP_USER.PASSWORD_HASH,
-                    APP_USER.ENABLED, APP_USER.EXPIRED, APP_USER.LOCKED_OUT,
-                    APP_USER.AUTHORITY)
-                .from(APP_USER).where(APP_USER.ID.eq(appUserId)).fetchOne();
+          Long appUserId = sessionRecord.get(APP_SESSION.APP_USER_ID);
+          var appUserRecord = this.dsl
+              .select(APP_USER.ID, APP_USER.EMAIL, APP_USER.ENABLED, APP_USER.EXPIRED,
+                  APP_USER.LOCKED_OUT, APP_USER.AUTHORITY)
+              .from(APP_USER).where(APP_USER.ID.eq(appUserId)).fetchOne();
 
-            if (appUserRecord != null) {
-              JooqUserDetails userDetails = new JooqUserDetails(
-                  appUserRecord.get(APP_USER.ID), appUserRecord.get(APP_USER.EMAIL),
-                  appUserRecord.get(APP_USER.PASSWORD_HASH),
-                  appUserRecord.get(APP_USER.ENABLED),
-                  appUserRecord.get(APP_USER.EXPIRED),
-                  appUserRecord.get(APP_USER.LOCKED_OUT),
-                  appUserRecord.get(APP_USER.AUTHORITY),
-                  this.appProperties.getLoginLockDuration());
-              this.userDetailsChecker.check(userDetails);
+          if (appUserRecord != null) {
+            Boolean enabled = appUserRecord.get(APP_USER.ENABLED);
+            LocalDateTime expired = appUserRecord.get(APP_USER.EXPIRED);
+            LocalDateTime lockedOut = appUserRecord.get(APP_USER.LOCKED_OUT);
+
+            if (enabled.booleanValue() && expired == null && lockedOut == null) {
+              AppUserDetail userDetail = new AppUserDetail(appUserRecord.get(APP_USER.ID),
+                  appUserRecord.get(APP_USER.EMAIL),
+                  appUserRecord.get(APP_USER.AUTHORITY));
 
               Ids updateIds = new Ids(appUserId, sessionRecord.get(APP_SESSION.ID));
-
               this.updateLastAccessQueue.add(updateIds);
-
               SecurityContextHolder.getContext()
-                  .setAuthentication(new UsernamePasswordAuthenticationToken(userDetails,
-                      null, userDetails.getAuthorities()));
+                  .setAuthentication(new AppUserAuthentication(userDetail));
             }
           }
-          catch (UsernameNotFoundException | LockedException | DisabledException
-              | AccountExpiredException | CredentialsExpiredException e) {
-            // ignore this
-          }
-
         }
         else {
           // session expired

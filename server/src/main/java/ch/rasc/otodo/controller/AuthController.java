@@ -6,13 +6,15 @@ import static ch.rasc.otodo.db.tables.AppUser.APP_USER;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 
 import org.jooq.DSLContext;
+import org.jooq.impl.DSL;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +29,9 @@ import com.codahale.passpol.PasswordPolicy;
 import com.codahale.passpol.Status;
 
 import ch.rasc.otodo.config.AppProperties;
+import ch.rasc.otodo.config.security.AppUserDetail;
+import ch.rasc.otodo.config.security.AuthHeaderFilter;
+import ch.rasc.otodo.db.tables.records.AppSessionRecord;
 import ch.rasc.otodo.db.tables.records.AppUserRecord;
 import ch.rasc.otodo.service.EmailService;
 import ch.rasc.otodo.service.TokenService;
@@ -48,6 +53,8 @@ class AuthController {
 
   private final PasswordPolicy passwordPolicy;
 
+  private final String userNotFoundEncodedPassword;
+
   public AuthController(DSLContext dsl, PasswordEncoder passwordEncoder,
       TokenService tokenService, EmailService emailService, AppProperties appProperties,
       PasswordPolicy passwordPolicy) {
@@ -57,10 +64,87 @@ class AuthController {
     this.emailService = emailService;
     this.appProperties = appProperties;
     this.passwordPolicy = passwordPolicy;
+    this.userNotFoundEncodedPassword = this.passwordEncoder
+        .encode("userNotFoundPassword");
+  }
+
+  @PostMapping("/login")
+  public ResponseEntity<String> login(HttpServletRequest request, String username,
+      String password) {
+    AppUserRecord appUserRecord = this.dsl.selectFrom(APP_USER)
+        .where(APP_USER.EMAIL.eq(username)).fetchOne();
+
+    if (appUserRecord != null) {
+      boolean pwMatches = this.passwordEncoder.matches(password,
+          appUserRecord.getPasswordHash());
+      if (pwMatches) {
+        if (appUserRecord.getEnabled().booleanValue()
+            && (appUserRecord.getLockedOut() == null
+                || (this.appProperties.getLoginLockDuration() != null
+                    && appUserRecord.getLockedOut()
+                        .isBefore(LocalDateTime.now()
+                            .minus(this.appProperties.getLoginLockDuration()))))
+            && appUserRecord.getExpired() == null) {
+
+          String sessionId = this.tokenService.createToken();
+
+          this.dsl.transaction(txConf -> {
+            try (var txdsl = DSL.using(txConf)) {
+              LocalDateTime now = LocalDateTime.now();
+
+              String ua = request.getHeader("user-agent");
+              if (ua != null) {
+                ua = ua.substring(0, Math.min(255, ua.length()));
+              }
+
+              AppSessionRecord record = this.dsl.newRecord(APP_SESSION);
+              record.setId(sessionId);
+              record.setAppUserId(appUserRecord.getId());
+              record.setLastAccess(now);
+              record.setIp(request.getRemoteAddr());
+              record.setUserAgent(ua);
+              record.store();
+
+              this.dsl.update(APP_USER).set(APP_USER.LOCKED_OUT, (LocalDateTime) null)
+                  .set(APP_USER.FAILED_LOGINS, (Integer) null)
+                  .set(APP_USER.LAST_ACCESS, now)
+                  .where(APP_USER.ID.eq(appUserRecord.getId())).execute();
+            }
+          });
+
+          return ResponseEntity.ok().header(AuthHeaderFilter.HEADER_NAME, sessionId)
+              .body(appUserRecord.getAuthority());
+        }
+      }
+      else {
+        Integer failedLogins = appUserRecord.get(APP_USER.FAILED_LOGINS);
+        if (failedLogins == null) {
+          failedLogins = 1;
+        }
+        else {
+          failedLogins++;
+        }
+
+        if (failedLogins >= this.appProperties.getLoginLockAttempts()) {
+          this.dsl.update(APP_USER).set(APP_USER.LOCKED_OUT, LocalDateTime.now())
+              .set(APP_USER.FAILED_LOGINS, failedLogins)
+              .where(APP_USER.ID.eq(appUserRecord.getId())).execute();
+        }
+        else {
+          this.dsl.update(APP_USER).set(APP_USER.FAILED_LOGINS, failedLogins)
+              .where(APP_USER.ID.eq(appUserRecord.getId())).execute();
+        }
+      }
+    }
+    else {
+      this.passwordEncoder.matches(password, this.userNotFoundEncodedPassword);
+    }
+
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
   }
 
   @GetMapping("/authenticate")
-  public String authenticate(@AuthenticationPrincipal UserDetails user) {
+  public String authenticate(@AuthenticationPrincipal AppUserDetail user) {
     return user.getAuthorities().iterator().next().getAuthority();
   }
 
@@ -162,7 +246,8 @@ class AuthController {
   }
 
   @PostMapping("/reset-password")
-  public ResetPasswordResponse resetPassword(@RequestParam("resetToken") @NotEmpty String resetToken,
+  public ResetPasswordResponse resetPassword(
+      @RequestParam("resetToken") @NotEmpty String resetToken,
       @RequestParam("password") @NotEmpty String password) {
 
     var record = this.dsl.select(APP_USER.ID, APP_USER.PASSWORD_RESET_TOKEN_CREATED)

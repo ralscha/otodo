@@ -197,7 +197,7 @@ class SignupTest extends AbstractEmailTest {
       assertThat(response.getBody()).isNull();
     }
     else {
-      assertThat(response.getBody()).isEqualTo("\""+expectedResponse+"\"");
+      assertThat(response.getBody()).isEqualTo("\"" + expectedResponse + "\"");
     }
   }
 

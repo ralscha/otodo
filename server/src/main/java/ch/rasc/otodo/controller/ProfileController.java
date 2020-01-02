@@ -30,8 +30,8 @@ import com.codahale.passpol.PasswordPolicy;
 import com.codahale.passpol.Status;
 
 import ch.rasc.otodo.config.AppProperties;
+import ch.rasc.otodo.config.security.AppUserDetail;
 import ch.rasc.otodo.config.security.AuthHeaderFilter;
-import ch.rasc.otodo.config.security.JooqUserDetails;
 import ch.rasc.otodo.dto.SessionInfo;
 import ch.rasc.otodo.service.EmailService;
 import ch.rasc.otodo.service.TokenService;
@@ -73,7 +73,7 @@ public class ProfileController {
 
   @PostMapping("/change-password")
   public ChangePasswordResponse changePassword(
-      @AuthenticationPrincipal JooqUserDetails user,
+      @AuthenticationPrincipal AppUserDetail user,
       @RequestParam("oldPassword") @NotEmpty String oldPassword,
       @RequestParam("newPassword") @NotEmpty String newPassword) {
 
@@ -84,16 +84,16 @@ public class ProfileController {
 
     return this.dsl.transactionResult(txConf -> {
       try (var txdsl = DSL.using(txConf)) {
-        if (passwordMatches(txdsl, user.getUserDbId(), oldPassword)) {
+        if (passwordMatches(txdsl, user.getAppUserId(), oldPassword)) {
           String encodedNewPassword = this.passwordEncoder.encode(newPassword);
 
           txdsl.update(APP_USER).set(APP_USER.PASSWORD_HASH, encodedNewPassword)
-              .where(APP_USER.ID.eq(user.getUserDbId())).execute();
+              .where(APP_USER.ID.eq(user.getAppUserId())).execute();
 
-          this.emailService.sendPasswordChangedEmail(user.getUsername());
+          this.emailService.sendPasswordChangedEmail(user.getEmail());
 
           this.dsl.delete(APP_SESSION)
-              .where(APP_SESSION.APP_USER_ID.eq(user.getUserDbId())).execute();
+              .where(APP_SESSION.APP_USER_ID.eq(user.getAppUserId())).execute();
 
           return null;
         }
@@ -104,13 +104,13 @@ public class ProfileController {
   }
 
   @PostMapping("/delete-account")
-  public boolean deleteAccount(@AuthenticationPrincipal JooqUserDetails user,
+  public boolean deleteAccount(@AuthenticationPrincipal AppUserDetail user,
       @RequestBody @NotEmpty String password) {
 
     return this.dsl.transactionResult(txConf -> {
       try (var txdsl = DSL.using(txConf)) {
-        if (passwordMatches(txdsl, user.getUserDbId(), password)) {
-          txdsl.delete(APP_USER).where(APP_USER.ID.eq(user.getUserDbId())).execute();
+        if (passwordMatches(txdsl, user.getAppUserId(), password)) {
+          txdsl.delete(APP_USER).where(APP_USER.ID.eq(user.getAppUserId())).execute();
           return true;
         }
 
@@ -126,7 +126,7 @@ public class ProfileController {
   }
 
   @PostMapping("/change-email")
-  public ChangeEmailResponse changeEmail(@AuthenticationPrincipal JooqUserDetails user,
+  public ChangeEmailResponse changeEmail(@AuthenticationPrincipal AppUserDetail user,
       @RequestParam("password") @NotEmpty String password,
       @RequestParam("newEmail") @NotEmpty @Email String newEmail) {
 
@@ -135,7 +135,7 @@ public class ProfileController {
 
         // is new email same as old email
         int count = this.dsl.selectCount().from(APP_USER).where(APP_USER.EMAIL
-            .equalIgnoreCase(newEmail).and(APP_USER.ID.eq(user.getUserDbId())))
+            .equalIgnoreCase(newEmail).and(APP_USER.ID.eq(user.getAppUserId())))
             .fetchOne(0, int.class);
         if (count > 0) {
           return ChangeEmailResponse.SAME;
@@ -148,14 +148,14 @@ public class ProfileController {
           return ChangeEmailResponse.USE;
         }
 
-        if (passwordMatches(txdsl, user.getUserDbId(), password)) {
+        if (passwordMatches(txdsl, user.getAppUserId(), password)) {
 
           String confirmationToken = this.tokenService.createToken();
           txdsl.update(APP_USER)
               .set(APP_USER.CONFIRMATION_TOKEN_CREATED, LocalDateTime.now())
               .set(APP_USER.CONFIRMATION_TOKEN, confirmationToken)
-              .set(APP_USER.EMAIL_NEW, newEmail).where(APP_USER.ID.eq(user.getUserDbId()))
-              .execute();
+              .set(APP_USER.EMAIL_NEW, newEmail)
+              .where(APP_USER.ID.eq(user.getAppUserId())).execute();
 
           this.emailService.sendEmailChangeConfirmationEmail(newEmail, confirmationToken);
 
@@ -200,13 +200,13 @@ public class ProfileController {
   }
 
   @GetMapping("/sessions")
-  public List<SessionInfo> sessions(@AuthenticationPrincipal JooqUserDetails user,
+  public List<SessionInfo> sessions(@AuthenticationPrincipal AppUserDetail user,
       HttpServletRequest request) {
 
     String sessionId = request.getHeader(AuthHeaderFilter.HEADER_NAME);
 
     return this.dsl.selectFrom(APP_SESSION)
-        .where(APP_SESSION.APP_USER_ID.eq(user.getUserDbId())).fetch().stream()
+        .where(APP_SESSION.APP_USER_ID.eq(user.getAppUserId())).fetch().stream()
         .map(record -> new SessionInfo(record.getId(), record.getId().equals(sessionId),
             record.getLastAccess(), record.getIp(), record.getUserAgent()))
         .collect(Collectors.toList());
@@ -215,9 +215,9 @@ public class ProfileController {
   @PostMapping("/delete-session")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteSession(@RequestBody @NotEmpty String sessionId,
-      @AuthenticationPrincipal JooqUserDetails user) {
+      @AuthenticationPrincipal AppUserDetail user) {
     this.dsl.delete(APP_SESSION).where(
-        APP_SESSION.ID.eq(sessionId).and(APP_SESSION.APP_USER_ID.eq(user.getUserDbId())))
+        APP_SESSION.ID.eq(sessionId).and(APP_SESSION.APP_USER_ID.eq(user.getAppUserId())))
         .execute();
   }
 
