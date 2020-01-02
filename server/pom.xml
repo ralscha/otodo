@@ -56,6 +56,11 @@
 			<version>1.0.3</version>
 		</dependency>
 		<dependency>
+			<groupId>com.github.vladimir-bukhtoyarov</groupId>
+			<artifactId>bucket4j-core</artifactId>
+			<version>4.6.0</version>
+		</dependency>
+		<dependency>
 			<groupId>com.samskivert</groupId>
 			<artifactId>jmustache</artifactId>
 		</dependency>
@@ -73,10 +78,10 @@
 			<artifactId>caffeine</artifactId>
 		</dependency>
 		<dependency>
-		    <groupId>org.bouncycastle</groupId>
-		    <artifactId>bcprov-jdk15on</artifactId>
-		    <version>1.64</version>
-		</dependency>		
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk15on</artifactId>
+			<version>1.64</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -97,14 +102,14 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>mariadb</artifactId>
-			<scope>test</scope>		
+			<scope>test</scope>
 			<version>1.12.4</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.icegreen</groupId>
 			<artifactId>greenmail</artifactId>
@@ -129,7 +134,7 @@
 	</dependencies>
 
 	<build>
-	  <finalName>otodo</finalName>
+		<finalName>otodo</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -149,65 +154,6 @@
 	</build>
 
 	<profiles>
-		<profile>
-			<id>jooq</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.jooq</groupId>
-						<artifactId>jooq-codegen-maven</artifactId>
-						<version>3.12.3</version>
-						<executions>
-							<execution>
-								<id>generate-jooq-sources</id>
-								<phase>generate-sources</phase>
-								<goals>
-									<goal>generate</goal>
-								</goals>
-								<configuration>
-									<generator>
-										<generate>
-											<pojos>false</pojos>
-											<daos>false</daos>
-											<javaTimeTypes>true</javaTimeTypes>
-										</generate>
-										<database>
-											<name>org.jooq.meta.extensions.ddl.DDLDatabase</name>
-											<inputCatalog></inputCatalog>
-											<inputSchema>PUBLIC</inputSchema>
-											<outputSchemaToDefault>true</outputSchemaToDefault>
-											<outputCatalogToDefault>true</outputCatalogToDefault>
-											<properties>
-												<property>
-													<key>sort</key>
-													<value>semantic</value>
-												</property>
-												<property>
-													<key>scripts</key>
-													<value>src/main/resources/db/migration/*</value>
-												</property>
-											</properties>
-										</database>
-										<target>
-											<clean>true</clean>
-											<packageName>ch.rasc.otodo.db</packageName>
-											<directory>src/main/java</directory>
-										</target>
-									</generator>
-								</configuration>
-							</execution>
-						</executions>
-						<dependencies>
-							<dependency>
-								<groupId>org.jooq</groupId>
-								<artifactId>jooq-meta-extensions</artifactId>
-								<version>3.12.3</version>
-							</dependency>
-						</dependencies>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
 		<profile>
 			<id>jooq-db</id>
 			<build>
@@ -248,7 +194,7 @@
 													<includeTypes>(?i:TINYINT\(1\))</includeTypes>
 													<nullability>ALL</nullability>
 													<objectType>ALL</objectType>
-												</forcedType>											
+												</forcedType>
 											</forcedTypes>
 										</database>
 										<target>
