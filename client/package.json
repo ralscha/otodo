@@ -29,7 +29,7 @@
     "ngx-custom-validators": "8.0.0",
     "pwacompat": "2.0.10",
     "rxjs": "6.5.4",
-    "tslib": "1.10.0",
+    "tslib": "1.11.1",
     "ua-parser-js": "0.7.21",
     "zone.js": "0.10.2"
   },
@@ -44,7 +44,7 @@
     "codelyzer": "5.2.1",
     "local-web-server": "2.6.1",
     "replace-in-file": "5.0.2",
-    "tslint": "5.20.1",
+    "tslint": "6.1.0",
     "typescript": "3.7.4"
   }
 }

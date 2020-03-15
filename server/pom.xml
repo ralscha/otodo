@@ -58,7 +58,7 @@
 		<dependency>
 			<groupId>com.github.vladimir-bukhtoyarov</groupId>
 			<artifactId>bucket4j-core</artifactId>
-			<version>4.7.0</version>
+			<version>4.10.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.samskivert</groupId>
@@ -161,7 +161,7 @@
 					<plugin>
 						<groupId>org.jooq</groupId>
 						<artifactId>jooq-codegen-maven</artifactId>
-						<version>3.12.3</version>
+						<version>${jooq.version}</version>
 						<executions>
 							<execution>
 								<id>generate-jooq-sources</id>
@@ -210,7 +210,7 @@
 							<dependency>
 								<groupId>org.jooq</groupId>
 								<artifactId>jooq-meta-extensions</artifactId>
-								<version>3.12.3</version>
+								<version>${jooq.version}</version>
 							</dependency>
 						</dependencies>
 					</plugin>
