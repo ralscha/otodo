@@ -22,7 +22,7 @@
             "assets": [
               "src/assets",
               {
-                "glob": "@(md-log-out.svg|ios-log-out.svg|md-people.svg|ios-people.svg|md-person.svg|ios-person.svg|md-menu.svg|ios-menu.svg|md-search.svg|ios-search.svg|md-close.svg|ios-close.svg|md-arrow-down.svg|ios-arrow-down.svg|md-checkmark-circle-outline.svg|ios-checkmark-circle-outline.svg|md-add.svg|ios-add.svg|md-arrow-forward.svg|ios-arrow-forward.svg|md-trash.svg|ios-trash.svg|md-arrow-back.svg|ios-arrow-back.svg)",
+                "glob": "@(log-out.svg|people.svg|person.svg|menu-sharp.svg|menu-outline.svg|search-sharp.svg|close-sharp.svg|arrow-down.svg|checkmark-circle-outline.svg|add.svg|arrow-forward.svg|trash.svg|arrow-back-sharp.svg|chevron-back.svg|caret-back-sharp.svg|close.svg|chevron-forward.svg)",
                 "input": "node_modules/ionicons/dist/ionicons/svg",
                 "output": "./svg"
               },
