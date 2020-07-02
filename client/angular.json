@@ -29,7 +29,7 @@
               {
                 "glob": "pwacompat.min.js",
                 "input": "node_modules/pwacompat/",
-                "output": "./pwacompat-2-0-10"
+                "output": "./pwacompat-2-0-15"
               },
               "src/manifest.json"
             ],

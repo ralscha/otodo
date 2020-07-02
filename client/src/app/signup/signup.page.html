@@ -16,8 +16,8 @@
         <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
           <ion-item>
             <ion-label position="stacked">Email</ion-label>
-            <ion-input #email="ngModel" autocapitalize="off" autocomplete="username" email name="email" ngModel
-                       required spellcheck="false" type="text"></ion-input>
+            <ion-input #email="ngModel" [required]="true" [spellcheck]="false" autocapitalize="off" autocomplete="username" email
+                       name="email" ngModel type="text"></ion-input>
           </ion-item>
         </ion-col>
       </ion-row>
@@ -44,8 +44,8 @@
         <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
           <ion-item>
             <ion-label position="stacked">Password</ion-label>
-            <ion-input #password="ngModel" autocomplete="new-password" minlength="8" name="password" ngModel
-                       required type="password"></ion-input>
+            <ion-input #password="ngModel" [minlength]="8" [required]="true" autocomplete="new-password" name="password"
+                       ngModel type="password"></ion-input>
           </ion-item>
         </ion-col>
       </ion-row>

@@ -20,7 +20,7 @@
         <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
           <ion-item>
             <ion-label position="stacked">Subject</ion-label>
-            <ion-input #subject="ngModel" [ngModel]="selectedTodo.subject" name="subject" required></ion-input>
+            <ion-input #subject="ngModel" [ngModel]="selectedTodo.subject" name="subject" [required]="true"></ion-input>
           </ion-item>
         </ion-col>
       </ion-row>
@@ -40,7 +40,7 @@
           <ion-item>
             <ion-label position="stacked">Description</ion-label>
             <ion-textarea #description="ngModel" [ngModel]="selectedTodo.description" name="description"
-                          rows="3"></ion-textarea>
+                          [rows]="3"></ion-textarea>
           </ion-item>
         </ion-col>
       </ion-row>
