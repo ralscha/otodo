@@ -12,10 +12,10 @@ import {ProfileService} from '../../service/profile.service';
 })
 export class AccountPage {
 
-  submitError: string = null;
+  submitError: string | null = null;
 
   @ViewChild('deleteForm')
-  deleteForm: NgForm;
+  deleteForm!: NgForm;
 
   constructor(private readonly navCtrl: NavController,
               private readonly profileService: ProfileService,
@@ -24,7 +24,7 @@ export class AccountPage {
               private readonly alertController: AlertController) {
   }
 
-  async deleteAccount(password: string) {
+  async deleteAccount(password: string): Promise<void> {
     this.submitError = null;
 
     const alert = await this.alertController.create({
@@ -48,7 +48,7 @@ export class AccountPage {
 
   }
 
-  private async reallyDeleteAccount(password: string) {
+  private async reallyDeleteAccount(password: string): Promise<void> {
     const loading = await this.messagesService.showLoading('Deleting account');
 
     this.profileService.deleteAccount(password)
@@ -57,11 +57,11 @@ export class AccountPage {
         if (success) {
           await this.messagesService.showSuccessToast('Account successfully deleted');
           await this.appDatabase.authenticationToken.clear();
-          this.navCtrl.navigateRoot('/login');
+          await this.navCtrl.navigateRoot('/login');
         } else {
           this.deleteForm.resetForm();
           this.submitError = 'passwordInvalid';
-          this.messagesService.showErrorToast('Password invalid');
+          await this.messagesService.showErrorToast('Password invalid');
         }
       }, () => {
         loading.dismiss();

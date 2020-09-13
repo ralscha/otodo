@@ -17,7 +17,7 @@ export class LoginPage {
               private readonly messagesService: MessagesService) {
   }
 
-  async login(email: string, password: string) {
+  async login(email: string, password: string): Promise<void> {
     const loading = await this.messagesService.showLoading('Logging in');
 
     this.authService.login(email, password)
@@ -26,9 +26,9 @@ export class LoginPage {
         await loading.dismiss();
 
         if (connectionState.isAdmin()) {
-          this.navCtrl.navigateRoot('/users');
+          await this.navCtrl.navigateRoot('/users');
         } else if (connectionState.isUser()) {
-          this.navCtrl.navigateRoot('/todos');
+          await this.navCtrl.navigateRoot('/todos');
         } else {
           this.showLoginFailedToast();
         }
@@ -36,16 +36,18 @@ export class LoginPage {
   }
 
   @HostListener('window:keydown', ['$event'])
-  onKeyDown(event) {
+  // tslint:disable-next-line:no-any
+  onKeyDown(event: any): void {
     this.capslockOn = event.getModifierState && event.getModifierState('CapsLock');
   }
 
   @HostListener('window:keyup', ['$event'])
-  onKeyUp(event) {
+  // tslint:disable-next-line:no-any
+  onKeyUp(event: any): void {
     this.capslockOn = event.getModifierState && event.getModifierState('CapsLock');
   }
 
-  private showLoginFailedToast() {
+  private showLoginFailedToast(): void {
     this.messagesService.showErrorToast('Login failed');
   }
 

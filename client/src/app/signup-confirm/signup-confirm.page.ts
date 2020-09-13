@@ -10,14 +10,14 @@ import {ActivatedRoute} from '@angular/router';
 })
 export class SignupConfirmPage implements OnInit {
 
-  success: boolean;
+  success: boolean | null = null;
 
   constructor(private readonly authService: AuthService,
               private readonly route: ActivatedRoute,
               private readonly messagesService: MessagesService) {
   }
 
-  async ngOnInit() {
+  async ngOnInit(): Promise<void> {
     const token = this.route.snapshot.paramMap.get('token');
 
     if (!token) {

@@ -10,10 +10,10 @@ import {environment} from '../../../environments/environment';
 export class ProfilePage implements OnInit {
 
   buildInfo: {
-    serverVersion: string,
-    serverBuildTime: string,
-    clientVersion: string,
-    clientBuildTime: string
+    serverVersion: string | null,
+    serverBuildTime: string | null,
+    clientVersion: string | null,
+    clientBuildTime: string | null
   } = {serverVersion: null, serverBuildTime: null, clientVersion: null, clientBuildTime: null};
 
   constructor(private readonly httpClient: HttpClient) {

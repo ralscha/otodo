@@ -13,7 +13,7 @@ export class LogoutPage implements OnInit {
   constructor(private readonly authService: AuthService) {
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.authService.logout().subscribe(() => this.showMsg = true);
   }
 

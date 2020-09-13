@@ -11,14 +11,14 @@ import {MessagesService} from '../service/messages.service';
 export class SignupPage {
 
   signUpSent = false;
-  submitError: string = null;
+  submitError: string | null = null;
 
   constructor(private readonly navCtrl: NavController,
               private readonly authService: AuthService,
               private readonly messagesService: MessagesService) {
   }
 
-  async signup(email: string, password: string) {
+  async signup(email: string, password: string): Promise<void> {
     const loading = await this.messagesService.showLoading('Signing up');
     this.submitError = null;
 

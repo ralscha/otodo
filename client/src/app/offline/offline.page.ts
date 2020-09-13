@@ -10,13 +10,13 @@ import {Router} from '@angular/router';
 })
 export class OfflinePage implements OnInit, OnDestroy {
 
-  private subscription: Subscription = null;
+  private subscription: Subscription | null = null;
 
   constructor(private readonly connectionService: ConnectionService,
               private readonly router: Router) {
   }
 
-  reconnect() {
+  reconnect(): void {
     this.connectionService.reconnect();
   }
 

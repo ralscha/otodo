@@ -26,7 +26,7 @@ export class ProfileService {
     return this.httpClient.get<Session[]>('/be/sessions');
   }
 
-  deleteSession(sessionId: string) {
+  deleteSession(sessionId: string): Observable<void> {
     return this.httpClient.post<void>('/be/delete-session', sessionId);
   }
 
@@ -35,7 +35,7 @@ export class ProfileService {
     return this.httpClient.post<string>('/be/change-email', body);
   }
 
-  confirmEmailChange(token: string) {
+  confirmEmailChange(token: string): Observable<boolean> {
     return this.httpClient.post('/be/confirm-email-change', token, {responseType: 'text'})
       .pipe(map(response => response === 'true'));
   }

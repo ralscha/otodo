@@ -14,7 +14,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   appPages: Array<{ title: string, url: string, icon: string }> = [];
 
-  private subscription: Subscription;
+  private subscription!: Subscription;
 
   constructor(private readonly authService: AuthService,
               private readonly connectionService: ConnectionService) {
@@ -30,7 +30,7 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
-  private updateMenu(connectionState: ConnectionState) {
+  private updateMenu(connectionState: ConnectionState): void {
     this.authenticated = connectionState.isAuthenticated();
 
     const newMenu = [];

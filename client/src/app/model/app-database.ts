@@ -7,10 +7,10 @@ import {ClientError} from './client-error';
   providedIn: 'root'
 })
 export class AppDatabase extends Dexie {
-  authenticationToken: Dexie.Table<string, number>;
-  invalidAuthenticationTokens: Dexie.Table<string, number>;
-  todos: Dexie.Table<Todo, number>;
-  errors: Dexie.Table<ClientError, string>;
+  authenticationToken!: Dexie.Table<string, number>;
+  invalidAuthenticationTokens!: Dexie.Table<string, number>;
+  todos!: Dexie.Table<Todo, number>;
+  errors!: Dexie.Table<ClientError, string>;
 
   constructor() {
     super('OTodoDatabase');

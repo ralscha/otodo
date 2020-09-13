@@ -18,11 +18,11 @@ export class TodoService {
               private readonly appDatabase: AppDatabase) {
   }
 
-  private static changed(oldTodo: Todo, newTodo: Todo) {
-    if (oldTodo.subject !== newTodo.subject) {
+  private static changed(oldTodo: Todo | undefined, newTodo: Todo): boolean {
+    if (oldTodo !== undefined && oldTodo.subject !== newTodo.subject) {
       return true;
     }
-    return oldTodo.description !== newTodo.description;
+    return oldTodo !== undefined && oldTodo.description !== newTodo.description;
 
   }
 
@@ -31,17 +31,17 @@ export class TodoService {
     return this.todos$;
   }
 
-  getTodo(id: number): Promise<Todo> {
+  getTodo(id: number): Promise<Todo | undefined> {
     return this.appDatabase.todos.get(id);
   }
 
-  async delete(todo: Todo) {
+  async delete(todo: Todo): Promise<void> {
     todo.ts = -1;
     await this.appDatabase.todos.put(todo);
     this.requestSync().catch(e => console.log(e));
   }
 
-  async save(todo: Todo) {
+  async save(todo: Todo): Promise<void> {
     if (!todo.id) {
       todo.id = await this.getNextNewId();
       todo.ts = Math.floor(Date.now() / 1000);
@@ -57,7 +57,7 @@ export class TodoService {
     }
   }
 
-  async requestSync() {
+  async requestSync(): Promise<void> {
     this.updateSubject();
 
     const syncViewObject = await this.httpClient.get<{ [key: string]: number }>('/be/syncview').toPromise();
@@ -72,25 +72,27 @@ export class TodoService {
       gets: []
     };
 
-    const deleteLocal = [];
+    const deleteLocal: number[] = [];
 
     await this.appDatabase.todos.toCollection().each(todo => {
-      const serverTimestamp = syncView.get(todo.id);
-      if (serverTimestamp) {
-        if (todo.ts === -1) {
-          syncRequest.removed.push(todo.id);
-        } else if (todo.ts > serverTimestamp) {
-          syncRequest.updated.push(todo);
-        } else if (todo.ts < serverTimestamp) {
-          syncRequest.gets.push(todo.id);
-        }
-        syncView.delete(todo.id);
-      } else {
-        // not on the server, either insert or delete locally
-        if (todo.id < 0) {
-          syncRequest.inserted.push(todo);
+      if (todo.id) {
+        const serverTimestamp = syncView.get(todo.id);
+        if (serverTimestamp) {
+          if (todo.ts === -1) {
+            syncRequest.removed.push(todo.id);
+          } else if (todo.ts > serverTimestamp) {
+            syncRequest.updated.push(todo);
+          } else if (todo.ts < serverTimestamp) {
+            syncRequest.gets.push(todo.id);
+          }
+          syncView.delete(todo.id);
         } else {
-          deleteLocal.push(todo.id);
+          // not on the server, either insert or delete locally
+          if (todo.id < 0) {
+            syncRequest.inserted.push(todo);
+          } else {
+            deleteLocal.push(todo.id);
+          }
         }
       }
     });
@@ -129,10 +131,12 @@ export class TodoService {
           async (kv) => {
             const oldId = parseInt(kv[0], 10);
             const todoFromDb = await this.appDatabase.todos.get(oldId);
-            todoFromDb.id = kv[1].id;
-            todoFromDb.ts = kv[1].ts;
-            await this.appDatabase.todos.delete(oldId);
-            await this.appDatabase.todos.add(todoFromDb);
+            if (todoFromDb) {
+              todoFromDb.id = kv[1].id;
+              todoFromDb.ts = kv[1].ts;
+              await this.appDatabase.todos.delete(oldId);
+              await this.appDatabase.todos.add(todoFromDb);
+            }
           });
       }
       if (syncResponse.updated) {
@@ -148,15 +152,15 @@ export class TodoService {
     return Promise.resolve();
   }
 
-  private updateSubject() {
+  private updateSubject(): void {
     this.appDatabase.todos.where('ts').notEqual(-1).toArray().then(todos => {
       this.todosSubject.next(todos);
     });
   }
 
-  private async getNextNewId() {
+  private async getNextNewId(): Promise<number> {
     const first = await this.appDatabase.todos.toCollection().first();
-    if (first) {
+    if (first && first.id) {
       if (first.id > 0) {
         return -1;
       } else {

@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {Session} from '../../model/session';
 import {ProfileService} from '../../service/profile.service';
+// @ts-ignore
 import * as UAParser from 'ua-parser-js';
 import {MessagesService} from '../../service/messages.service';
 
@@ -19,6 +20,7 @@ export class SessionsPage implements OnInit {
 
   private static parseUA(userAgent: string): { uaBrowser: string, uaOs: string, uaDevice: string } {
     const ua = new UAParser(userAgent).getResult();
+    // tslint:disable-next-line:no-any
     const result: any = {};
     result.uaBrowser = `${ua.browser.name} ${ua.browser.major}`;
     result.uaOs = `${ua.os.name} ${ua.os.version}`;
@@ -30,14 +32,14 @@ export class SessionsPage implements OnInit {
     return result;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.profileService.fetchSessions().subscribe(response => {
       this.sessions = response;
       this.sessions.forEach(session => session.ua = SessionsPage.parseUA(session.userAgent));
     });
   }
 
-  deleteSession(session: Session) {
+  deleteSession(session: Session): void {
     this.profileService.deleteSession(session.id).subscribe(() => {
       this.sessions = this.sessions.filter(s => s.id !== session.id);
     }, () => this.messagesService.showErrorToast());

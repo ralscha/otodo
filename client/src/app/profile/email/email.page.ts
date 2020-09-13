@@ -9,14 +9,14 @@ import {MessagesService} from '../../service/messages.service';
 })
 export class EmailPage {
 
-  submitError: string = null;
+  submitError: string | null = null;
   changeSent = false;
 
   constructor(private readonly profileService: ProfileService,
               private readonly messagesService: MessagesService) {
   }
 
-  async changeEmail(newEmail: string, password: string) {
+  async changeEmail(newEmail: string, password: string): Promise<void> {
     const loading = await this.messagesService.showLoading('Saving email change request');
     this.submitError = null;
 
@@ -25,13 +25,13 @@ export class EmailPage {
         await loading.dismiss();
         if (flag === 'SAME') {
           this.submitError = 'noChange';
-          this.messagesService.showErrorToast('New email same as old email');
+          await this.messagesService.showErrorToast('New email same as old email');
         } else if (flag === 'USE') {
           this.submitError = 'emailRegistered';
-          this.messagesService.showErrorToast('Email already registered');
+          await this.messagesService.showErrorToast('Email already registered');
         } else if (flag === 'PASSWORD') {
           this.submitError = 'passwordInvalid';
-          this.messagesService.showErrorToast('Password invalid');
+          await this.messagesService.showErrorToast('Password invalid');
         } else {
           await this.messagesService.showSuccessToast('Email change request successfully saved');
           this.changeSent = true;

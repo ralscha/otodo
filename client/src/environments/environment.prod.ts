@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
   version: '0.0.1',
-  buildTimestamp: 1593668948
+  buildTimestamp: 1600010144
 };

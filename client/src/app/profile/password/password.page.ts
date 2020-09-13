@@ -12,10 +12,10 @@ import {NavController} from '@ionic/angular';
 })
 export class PasswordPage {
 
-  submitError: string = null;
+  submitError: string | null = null;
 
   @ViewChild('changeForm')
-  changeForm: NgForm;
+  changeForm!: NgForm;
 
   constructor(private readonly profileService: ProfileService,
               private readonly authService: AuthService,
@@ -23,7 +23,7 @@ export class PasswordPage {
               private readonly messagesService: MessagesService) {
   }
 
-  async changePassword(oldPassword: string, newPassword: string) {
+  async changePassword(oldPassword: string, newPassword: string): Promise<void> {
 
     const loading = await this.messagesService.showLoading('Changing password');
     this.submitError = null;
@@ -35,10 +35,10 @@ export class PasswordPage {
           this.changeForm.resetForm();
           await this.messagesService.showSuccessToast('Password successfully changed');
           await this.authService.deleteTokens();
-          this.navCtrl.navigateRoot('/login');
+          await this.navCtrl.navigateRoot('/login');
         } else if (response === 'INVALID') {
           this.submitError = 'passwordInvalid';
-          this.messagesService.showErrorToast('Old Password invalid');
+          await this.messagesService.showErrorToast('Old Password invalid');
         } else if (response === 'WEAK_PASSWORD') {
           this.submitError = 'weakPassword';
           await this.messagesService.showErrorToast('Weak password');

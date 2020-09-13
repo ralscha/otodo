@@ -17,7 +17,7 @@ export class PasswordResetRequestPage {
               private readonly messagesService: MessagesService) {
   }
 
-  async resetRequest(email: string) {
+  async resetRequest(email: string): Promise<void> {
 
     const loading = await this.messagesService.showLoading('Sending email');
 

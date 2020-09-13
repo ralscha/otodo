@@ -10,14 +10,14 @@ import {ProfileService} from '../../service/profile.service';
 })
 export class EmailChangeConfirmPage implements OnInit {
 
-  success: boolean;
+  success: boolean | null = null;
 
   constructor(private readonly profileService: ProfileService,
               private readonly route: ActivatedRoute,
               private readonly messagesService: MessagesService) {
   }
 
-  async ngOnInit() {
+  async ngOnInit(): Promise<void> {
     const token = this.route.snapshot.paramMap.get('token');
 
     if (!token) {

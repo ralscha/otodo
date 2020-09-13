@@ -20,7 +20,7 @@
         <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
           <ion-item>
             <ion-label position="stacked">Subject</ion-label>
-            <ion-input #subject="ngModel" [ngModel]="selectedTodo.subject" name="subject" [required]="true"></ion-input>
+            <ion-input #subject="ngModel" [ngModel]="selectedTodo.subject" [required]="true" name="subject"></ion-input>
           </ion-item>
         </ion-col>
       </ion-row>
@@ -28,7 +28,7 @@
       <ion-row>
         <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
           <ion-text *ngIf="todoForm.submitted && subject.invalid" color="danger">
-            <p *ngIf="subject.errors.required" class="ion-padding-start">
+            <p *ngIf="subject.errors?.required" class="ion-padding-start">
               Subject is required
             </p>
           </ion-text>
@@ -39,8 +39,8 @@
         <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
           <ion-item>
             <ion-label position="stacked">Description</ion-label>
-            <ion-textarea #description="ngModel" [ngModel]="selectedTodo.description" name="description"
-                          [rows]="3"></ion-textarea>
+            <ion-textarea #description="ngModel" [ngModel]="selectedTodo.description" [rows]="3"
+                          name="description"></ion-textarea>
           </ion-item>
         </ion-col>
       </ion-row>

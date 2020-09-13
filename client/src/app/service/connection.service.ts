@@ -13,34 +13,34 @@ enum Authentication {
 }
 
 export class ConnectionState {
-  constructor(private readonly connection: Connection, private readonly authentication: Authentication) {
+  constructor(private readonly connection: Connection, private readonly authentication: Authentication | null) {
   }
 
   isOnlineAuthenticated(): boolean {
     return this.connection === Connection.ONLINE && this.authentication !== null;
   }
 
-  isOnline() {
+  isOnline(): boolean {
     return this.connection === Connection.ONLINE;
   }
 
-  isOffline() {
+  isOffline(): boolean {
     return this.connection === Connection.OFFLINE;
   }
 
-  isAdmin() {
+  isAdmin(): boolean {
     return this.authentication === Authentication.ADMIN;
   }
 
-  isUser() {
+  isUser(): boolean {
     return this.authentication === Authentication.USER;
   }
 
-  isAuthenticated() {
+  isAuthenticated(): boolean {
     return this.authentication !== null;
   }
 
-  isEqualsTo(other: ConnectionState) {
+  isEqualsTo(other: ConnectionState): boolean {
     return this.connection === other.connection && this.authentication === other.authentication;
   }
 }
@@ -105,7 +105,7 @@ export class ConnectionService {
   }
 
   manualNext(online: boolean, authority: 'ADMIN' | 'USER' | null = null): ConnectionState {
-    let auth: Authentication = null;
+    let auth: Authentication | null = null;
     if (authority === 'ADMIN') {
       auth = Authentication.ADMIN;
     } else if (authority === 'USER') {
@@ -123,7 +123,7 @@ export class ConnectionService {
     return cs;
   }
 
-  reconnect() {
+  reconnect(): void {
     if (window.navigator.onLine) {
       this.onlineCheck$.subscribe(cs => {
         if (cs.isOnline()) {
@@ -133,7 +133,7 @@ export class ConnectionService {
     }
   }
 
-  logout(online: boolean) {
+  logout(online: boolean): void {
     if (online) {
       this.manualNext(online);
     } else {
@@ -148,7 +148,7 @@ export class ConnectionService {
       return new ConnectionState(Connection.ONLINE, Authentication.USER);
     }
     this.appDatabase.authenticationToken.clear();
-    return null;
+    return new ConnectionState(Connection.OFFLINE, null);
   }
 
   private handleAuthError(error: HttpErrorResponse): Observable<ConnectionState> {

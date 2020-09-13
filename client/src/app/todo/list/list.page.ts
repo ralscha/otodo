@@ -10,19 +10,19 @@ import {TodoService} from '../../service/todo.service';
 })
 export class ListPage implements OnInit {
 
-  todos$: Observable<Todo[]>;
+  todos$!: Observable<Todo[]>;
 
   constructor(private readonly todoService: TodoService) {
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.todos$ = this.todoService.getTodos();
     this.todoService.requestSync();
   }
 
-  refresh(event) {
+  refresh(event: Event): void {
     this.todoService.requestSync()
-      .finally(() => event.target.complete());
+      .finally(() => (event as CustomEvent).detail.complete());
   }
 
 }

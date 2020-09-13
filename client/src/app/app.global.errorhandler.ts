@@ -19,12 +19,21 @@ export class AppGlobalErrorhandler implements ErrorHandler {
         switchMap(() => from(this.appDatabase.errors.toArray())),
         filter(errors => errors.length > 0),
         switchMap(errors => this.httpClient.post<void>('/be/client-error', errors).pipe(mapTo(errors))),
-        switchMap(errors => this.appDatabase.errors.bulkDelete(errors.map(error => error.id)))
+        switchMap(errors => {
+          const ids: number[] = [];
+          for (const error of errors) {
+            if (error.id) {
+              ids.push(error.id);
+            }
+          }
+          return this.appDatabase.errors.bulkDelete(ids);
+        })
       )
       .subscribe(noop, noop);
   }
 
-  async handleError(error) {
+  // tslint:disable-next-line:no-any
+  async handleError(error: any): Promise<void> {
     if (!environment.production) {
       console.error(error);
     }

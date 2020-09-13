@@ -72,7 +72,7 @@ export class AuthService {
     return this.httpClient.post<'INVALID' | 'WEAK_PASSWORD' | null>('/be/reset-password', body);
   }
 
-  async deleteTokens() {
+  async deleteTokens(): Promise<void> {
     sessionStorage.removeItem('token');
     await this.appDatabase.authenticationToken.clear();
   }

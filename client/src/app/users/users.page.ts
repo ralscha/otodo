@@ -12,44 +12,44 @@ import {IonItemSliding} from '@ionic/angular';
 })
 export class UsersPage implements OnInit {
 
-  users$: Observable<User[]>;
-  private allUsers$: Observable<User[]>;
+  users$!: Observable<User[]>;
+  private allUsers$!: Observable<User[]>;
   private httpGetUsers: Observable<User[]> = this.httpClient.get<User[]>('/be/admin/users');
-  private searchFilter: string = null;
-  private selectFilter: string = null;
+  private searchFilter: string | null = null;
+  private selectFilter: string | null = null;
 
   constructor(private readonly httpClient: HttpClient) {
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.allUsers$ = this.httpGetUsers.pipe(shareReplay());
     this.users$ = this.allUsers$;
   }
 
-  refresh(event) {
-    this.allUsers$ = this.httpGetUsers.pipe(tap(() => event.target.complete()), shareReplay());
+  refresh(event: Event): void {
+    this.allUsers$ = this.httpGetUsers.pipe(tap(() => (event as CustomEvent).detail.complete()), shareReplay());
     this.doFilter();
   }
 
-  activate(user: User, slidingItem: IonItemSliding) {
+  activate(user: User, slidingItem: IonItemSliding): void {
     slidingItem.close();
     this.httpClient.post<void>('/be/admin/activate', user.id)
       .subscribe(() => user.expired = false);
   }
 
-  disable(user: User, slidingItem: IonItemSliding) {
+  disable(user: User, slidingItem: IonItemSliding): void {
     slidingItem.close();
     this.httpClient.post<void>('/be/admin/disable', user.id)
       .subscribe(() => user.enabled = false);
   }
 
-  enable(user: User, slidingItem: IonItemSliding) {
+  enable(user: User, slidingItem: IonItemSliding): void {
     slidingItem.close();
     this.httpClient.post<void>('/be/admin/enable', user.id)
       .subscribe(() => user.enabled = true);
   }
 
-  delete(user: User, slidingItem: IonItemSliding) {
+  delete(user: User, slidingItem: IonItemSliding): void {
     slidingItem.close();
     this.httpClient.post<void>('/be/admin/delete', user.id)
       .subscribe(() => {
@@ -57,12 +57,14 @@ export class UsersPage implements OnInit {
       });
   }
 
-  onSearch(event) {
+  onSearch(event: Event): void {
+    // @ts-ignore
     this.searchFilter = event.target.value;
     this.doFilter();
   }
 
-  onFilterChange(event) {
+  onFilterChange(event: Event): void {
+    // @ts-ignore
     this.selectFilter = event.target.value;
     this.doFilter();
   }
@@ -89,14 +91,14 @@ export class UsersPage implements OnInit {
       }
     }
 
-    if (this.searchFilter) {
-      filterFns.push(user => user.email.includes(this.searchFilter));
+    if (this.searchFilter !== null) {
+      filterFns.push(user => this.searchFilter !== null ? user.email.includes(this.searchFilter) : true);
     }
 
     this.filter(user => filterFns.every(fn => fn(user)));
   }
 
-  private filter(filterFn: (user: User) => boolean) {
+  private filter(filterFn: (user: User) => boolean): void {
     this.users$ = this.allUsers$.pipe(
       mergeMap(users => users),
       filter(filterFn),

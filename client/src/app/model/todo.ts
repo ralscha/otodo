@@ -1,6 +1,6 @@
 export interface Todo {
-  id: number;
-  subject: string;
-  description?: string;
+  id: number | null;
+  subject: string | null;
+  description: string | null;
   ts: number;
 }
