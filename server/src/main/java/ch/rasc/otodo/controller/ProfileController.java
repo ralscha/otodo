@@ -90,23 +90,23 @@ public class ProfileController {
     }
 
     return this.dsl.transactionResult(txConf -> {
-      try (var txdsl = DSL.using(txConf)) {
-        if (passwordMatches(txdsl, user.getAppUserId(), oldPassword)) {
-          String encodedNewPassword = this.passwordEncoder.encode(newPassword);
+      var txdsl = DSL.using(txConf);
+      if (passwordMatches(txdsl, user.getAppUserId(), oldPassword)) {
+        String encodedNewPassword = this.passwordEncoder.encode(newPassword);
 
-          txdsl.update(APP_USER).set(APP_USER.PASSWORD_HASH, encodedNewPassword)
-              .where(APP_USER.ID.eq(user.getAppUserId())).execute();
+        txdsl.update(APP_USER).set(APP_USER.PASSWORD_HASH, encodedNewPassword)
+            .where(APP_USER.ID.eq(user.getAppUserId())).execute();
 
-          this.emailService.sendPasswordChangedEmail(user.getEmail());
+        this.emailService.sendPasswordChangedEmail(user.getEmail());
 
-          this.dsl.delete(APP_SESSION)
-              .where(APP_SESSION.APP_USER_ID.eq(user.getAppUserId())).execute();
+        this.dsl.delete(APP_SESSION)
+            .where(APP_SESSION.APP_USER_ID.eq(user.getAppUserId())).execute();
 
-          return null;
-        }
-
-        return ChangePasswordResponse.INVALID;
+        return null;
       }
+
+      return ChangePasswordResponse.INVALID;
+
     });
   }
 
@@ -115,27 +115,27 @@ public class ProfileController {
       @RequestBody @NotEmpty String password) {
 
     return this.dsl.transactionResult(txConf -> {
-      try (var txdsl = DSL.using(txConf)) {
-        if (passwordMatches(txdsl, user.getAppUserId(), password)) {
+      var txdsl = DSL.using(txConf);
+      if (passwordMatches(txdsl, user.getAppUserId(), password)) {
 
-          // delete all sessions
-          Set<String> sessionIds = txdsl.select(APP_SESSION.ID).from(APP_SESSION)
-              .where(APP_SESSION.APP_USER_ID.eq(user.getAppUserId()))
-              .fetchSet(APP_SESSION.ID);
-          if (!sessionIds.isEmpty()) {
-            this.publisher
-                .publishEvent(SessionCacheInvalidateEvent.ofSessionIds(sessionIds));
-          }
-
-          txdsl.delete(APP_USER).where(APP_USER.ID.eq(user.getAppUserId())).execute();
+        // delete all sessions
+        Set<String> sessionIds = txdsl.select(APP_SESSION.ID).from(APP_SESSION)
+            .where(APP_SESSION.APP_USER_ID.eq(user.getAppUserId()))
+            .fetchSet(APP_SESSION.ID);
+        if (!sessionIds.isEmpty()) {
           this.publisher
-              .publishEvent(SessionCacheInvalidateEvent.ofUserId(user.getAppUserId()));
-
-          return true;
+              .publishEvent(SessionCacheInvalidateEvent.ofSessionIds(sessionIds));
         }
 
-        return false;
+        txdsl.delete(APP_USER).where(APP_USER.ID.eq(user.getAppUserId())).execute();
+        this.publisher
+            .publishEvent(SessionCacheInvalidateEvent.ofUserId(user.getAppUserId()));
+
+        return true;
       }
+
+      return false;
+
     });
   }
 
@@ -151,39 +151,38 @@ public class ProfileController {
       @RequestParam("newEmail") @NotEmpty @Email String newEmail) {
 
     return this.dsl.transactionResult(txConf -> {
-      try (var txdsl = DSL.using(txConf)) {
+      var txdsl = DSL.using(txConf);
 
-        // is new email same as old email
-        int count = this.dsl.selectCount().from(APP_USER).where(APP_USER.EMAIL
-            .equalIgnoreCase(newEmail).and(APP_USER.ID.eq(user.getAppUserId())))
-            .fetchOne(0, int.class);
-        if (count > 0) {
-          return ChangeEmailResponse.SAME;
-        }
-
-        // is new email already used by another user
-        count = this.dsl.selectCount().from(APP_USER)
-            .where(APP_USER.EMAIL.equalIgnoreCase(newEmail)).fetchOne(0, int.class);
-        if (count > 0) {
-          return ChangeEmailResponse.USE;
-        }
-
-        if (passwordMatches(txdsl, user.getAppUserId(), password)) {
-
-          String confirmationToken = this.tokenService.createToken();
-          txdsl.update(APP_USER)
-              .set(APP_USER.CONFIRMATION_TOKEN_CREATED, LocalDateTime.now())
-              .set(APP_USER.CONFIRMATION_TOKEN, confirmationToken)
-              .set(APP_USER.EMAIL_NEW, newEmail)
-              .where(APP_USER.ID.eq(user.getAppUserId())).execute();
-
-          this.emailService.sendEmailChangeConfirmationEmail(newEmail, confirmationToken);
-
-          return null;
-        }
-
-        return ChangeEmailResponse.PASSWORD;
+      // is new email same as old email
+      int count = this.dsl.selectCount().from(APP_USER).where(APP_USER.EMAIL
+          .equalIgnoreCase(newEmail).and(APP_USER.ID.eq(user.getAppUserId())))
+          .fetchOne(0, int.class);
+      if (count > 0) {
+        return ChangeEmailResponse.SAME;
       }
+
+      // is new email already used by another user
+      count = this.dsl.selectCount().from(APP_USER)
+          .where(APP_USER.EMAIL.equalIgnoreCase(newEmail)).fetchOne(0, int.class);
+      if (count > 0) {
+        return ChangeEmailResponse.USE;
+      }
+
+      if (passwordMatches(txdsl, user.getAppUserId(), password)) {
+
+        String confirmationToken = this.tokenService.createToken();
+        txdsl.update(APP_USER)
+            .set(APP_USER.CONFIRMATION_TOKEN_CREATED, LocalDateTime.now())
+            .set(APP_USER.CONFIRMATION_TOKEN, confirmationToken)
+            .set(APP_USER.EMAIL_NEW, newEmail).where(APP_USER.ID.eq(user.getAppUserId()))
+            .execute();
+
+        this.emailService.sendEmailChangeConfirmationEmail(newEmail, confirmationToken);
+
+        return null;
+      }
+
+      return ChangeEmailResponse.PASSWORD;
     });
   }
 

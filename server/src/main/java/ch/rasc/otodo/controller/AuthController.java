@@ -83,25 +83,25 @@ class AuthController {
         String sessionId = this.tokenService.createToken();
 
         this.dsl.transaction(txConf -> {
-          try (var txdsl = DSL.using(txConf)) {
-            LocalDateTime now = LocalDateTime.now();
+          var txdsl = DSL.using(txConf);
+          LocalDateTime now = LocalDateTime.now();
 
-            String ua = request.getHeader("user-agent");
-            if (ua != null) {
-              ua = ua.substring(0, Math.min(255, ua.length()));
-            }
-
-            AppSessionRecord record = this.dsl.newRecord(APP_SESSION);
-            record.setId(sessionId);
-            record.setAppUserId(appUserRecord.getId());
-            record.setLastAccess(now);
-            record.setIp(request.getRemoteAddr());
-            record.setUserAgent(ua);
-            record.store();
-
-            this.dsl.update(APP_USER).set(APP_USER.LAST_ACCESS, now)
-                .where(APP_USER.ID.eq(appUserRecord.getId())).execute();
+          String ua = request.getHeader("user-agent");
+          if (ua != null) {
+            ua = ua.substring(0, Math.min(255, ua.length()));
           }
+
+          AppSessionRecord record = this.dsl.newRecord(APP_SESSION);
+          record.setId(sessionId);
+          record.setAppUserId(appUserRecord.getId());
+          record.setLastAccess(now);
+          record.setIp(request.getRemoteAddr());
+          record.setUserAgent(ua);
+          record.store();
+
+          this.dsl.update(APP_USER).set(APP_USER.LAST_ACCESS, now)
+              .where(APP_USER.ID.eq(appUserRecord.getId())).execute();
+
         });
 
         return ResponseEntity.ok().header(AuthHeaderFilter.HEADER_NAME, sessionId)
