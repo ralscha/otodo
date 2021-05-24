@@ -36,13 +36,13 @@ export class LoginPage {
   }
 
   @HostListener('window:keydown', ['$event'])
-  // tslint:disable-next-line:no-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onKeyDown(event: any): void {
     this.capslockOn = event.getModifierState && event.getModifierState('CapsLock');
   }
 
   @HostListener('window:keyup', ['$event'])
-  // tslint:disable-next-line:no-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onKeyUp(event: any): void {
     this.capslockOn = event.getModifierState && event.getModifierState('CapsLock');
   }

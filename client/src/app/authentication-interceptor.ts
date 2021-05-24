@@ -15,7 +15,7 @@ export class AuthenticationInterceptor implements HttpInterceptor {
               private readonly router: Router) {
   }
 
-  // tslint:disable-next-line:no-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     if (this.ignoreURLs.has(request.url)) {
       return next.handle(request);
@@ -33,7 +33,7 @@ export class AuthenticationInterceptor implements HttpInterceptor {
     return from(tokenGetter()).pipe(mergeMap(
       (token: string) => {
 
-        // tslint:disable-next-line:no-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let nextHandle: Observable<HttpEvent<any>>;
 
         if (token) {

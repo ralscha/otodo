@@ -20,7 +20,7 @@ export class SessionsPage implements OnInit {
 
   private static parseUA(userAgent: string): { uaBrowser: string, uaOs: string, uaDevice: string } {
     const ua = new UAParser(userAgent).getResult();
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result: any = {};
     result.uaBrowser = `${ua.browser.name} ${ua.browser.major}`;
     result.uaOs = `${ua.os.name} ${ua.os.version}`;

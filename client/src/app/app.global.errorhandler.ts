@@ -32,7 +32,7 @@ export class AppGlobalErrorhandler implements ErrorHandler {
       .subscribe(noop, noop);
   }
 
-  // tslint:disable-next-line:no-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async handleError(error: any): Promise<void> {
     if (!environment.production) {
       console.error(error);

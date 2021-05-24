@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {AppDatabase} from '../model/app-database';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {BehaviorSubject, lastValueFrom, Observable} from 'rxjs';
 import {Todo} from '../model/todo';
 import {TodoSyncRequest} from '../model/todo-sync-request';
 import {TodoSyncResponse} from '../model/todo-sync-response';
@@ -60,7 +60,7 @@ export class TodoService {
   async requestSync(): Promise<void> {
     this.updateSubject();
 
-    const syncViewObject = await this.httpClient.get<{ [key: string]: number }>('/be/syncview').toPromise();
+    const syncViewObject = await lastValueFrom(this.httpClient.get<{ [key: string]: number }>('/be/syncview'));
 
     const syncView = new Map<number, number>();
     Object.entries(syncViewObject).forEach(kv => syncView.set(parseInt(kv[0], 10), kv[1]));
@@ -119,25 +119,24 @@ export class TodoService {
     }
 
     // send sync request to the server
-    const syncResponse = await this.httpClient.post<TodoSyncResponse>('/be/sync',
-      syncRequest).toPromise();
+    const syncResponse = await lastValueFrom(this.httpClient.post<TodoSyncResponse>('/be/sync',
+      syncRequest));
 
     await this.appDatabase.transaction('rw', this.appDatabase.todos, async () => {
       if (syncResponse.gets && syncResponse.gets.length > 0) {
         await this.appDatabase.todos.bulkPut(syncResponse.gets);
       }
       if (syncResponse.inserted) {
-        Object.entries(syncResponse.inserted).forEach(
-          async (kv) => {
-            const oldId = parseInt(kv[0], 10);
-            const todoFromDb = await this.appDatabase.todos.get(oldId);
-            if (todoFromDb) {
-              todoFromDb.id = kv[1].id;
-              todoFromDb.ts = kv[1].ts;
-              await this.appDatabase.todos.delete(oldId);
-              await this.appDatabase.todos.add(todoFromDb);
-            }
-          });
+        for (const kv of Object.entries(syncResponse.inserted)) {
+          const oldId = parseInt(kv[0], 10);
+          const todoFromDb = await this.appDatabase.todos.get(oldId);
+          if (todoFromDb) {
+            todoFromDb.id = kv[1].id;
+            todoFromDb.ts = kv[1].ts;
+            await this.appDatabase.todos.delete(oldId);
+            await this.appDatabase.todos.add(todoFromDb);
+          }
+        }
       }
       if (syncResponse.updated) {
         Object.entries(syncResponse.updated).forEach(
