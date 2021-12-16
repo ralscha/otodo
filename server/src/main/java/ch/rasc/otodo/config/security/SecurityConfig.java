@@ -8,8 +8,6 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 
@@ -32,11 +30,6 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
     return authentication -> {
       throw new AuthenticationServiceException("Cannot authenticate " + authentication);
     };
-  }
-
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return new Argon2PasswordEncoder(16, 32, 8, 1 << 16, 4);
   }
 
   @Override
