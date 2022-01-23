@@ -13,7 +13,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
-import io.github.bucket4j.Bucket4j;
 import io.github.bucket4j.Refill;
 
 @Configuration
@@ -43,7 +42,7 @@ public class WebConfig {
       public void addInterceptors(InterceptorRegistry registry) {
         Refill refill = Refill.greedy(60, Duration.ofMinutes(1));
         Bandwidth limit = Bandwidth.classic(60, refill);
-        Bucket bucket = Bucket4j.builder().addLimit(limit).build();
+        Bucket bucket = Bucket.builder().addLimit(limit).build();
         registry.addInterceptor(new RateLimitInterceptor(bucket, 1))
             .addPathPatterns("/login", "/signup");
       }

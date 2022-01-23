@@ -98,7 +98,7 @@ class TodoServiceTest extends AbstractBaseTest {
     TodoRecord todoFromDb = getDsl().selectFrom(TODO)
         .where(TODO.APP_USER_ID.eq(user2.getId()).and(TODO.ID.eq(todo2Id))).fetchOne();
     TodoRecord prevTodo = records2.get(todo2Id);
-    assertThat(todoFromDb).isEqualToComparingFieldByField(prevTodo);
+    assertThat(todoFromDb).usingRecursiveComparison().isEqualTo(prevTodo);
   }
 
   void testUpdate() {
