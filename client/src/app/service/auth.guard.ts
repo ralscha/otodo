@@ -18,8 +18,8 @@ export class AuthGuard implements CanActivate {
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot):
     Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
 
-    const requiredRole = route.data.role as 'ADMIN' | 'USER';
-    const offlineCapable = route.data.offline === true;
+    const requiredRole = route.data['role'] as 'ADMIN' | 'USER';
+    const offlineCapable = route.data['offline'] === true;
 
     return this.connectionService.connectionState()
       .pipe(

@@ -41,10 +41,10 @@
       <ion-row>
         <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
           <ion-text *ngIf="changeForm.submitted && password.invalid" color="danger">
-            <p *ngIf="password.errors?.required" class="ion-padding-start">
+            <p *ngIf="password.errors?.['required']" class="ion-padding-start">
               Password is required
             </p>
-            <p *ngIf="password.errors?.minlength" class="ion-padding-start">
+            <p *ngIf="password.errors?.['minlength']" class="ion-padding-start">
               Minimum length is 8 characters
             </p>
           </ion-text>
@@ -71,10 +71,10 @@
       <ion-row>
         <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
           <ion-text *ngIf="changeForm.submitted && newEmail.invalid" color="danger">
-            <p *ngIf="newEmail.errors?.required" class="ion-padding-start">
+            <p *ngIf="newEmail.errors?.['required']" class="ion-padding-start">
               Email is required
             </p>
-            <p *ngIf="newEmail.errors?.email" class="ion-padding-start">
+            <p *ngIf="newEmail.errors?.['email']" class="ion-padding-start">
               Not a valid email address
             </p>
           </ion-text>

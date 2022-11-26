@@ -28,7 +28,7 @@
       <ion-row>
         <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
           <ion-text *ngIf="todoForm.submitted && subject.invalid" color="danger">
-            <p *ngIf="subject.errors?.required" class="ion-padding-start">
+            <p *ngIf="subject.errors?.['required']" class="ion-padding-start">
               Subject is required
             </p>
           </ion-text>
