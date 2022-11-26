@@ -2,14 +2,14 @@ package ch.rasc.otodo.config.security;
 
 import static ch.rasc.otodo.db.tables.AppSession.APP_SESSION;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.jooq.DSLContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.stereotype.Component;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 class AppLogoutSuccessHandler implements LogoutSuccessHandler {

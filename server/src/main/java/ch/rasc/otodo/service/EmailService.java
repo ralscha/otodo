@@ -6,9 +6,6 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -21,6 +18,8 @@ import com.samskivert.mustache.Template;
 
 import ch.rasc.otodo.Application;
 import ch.rasc.otodo.config.AppProperties;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 
 @Service
 public class EmailService {
@@ -39,7 +38,7 @@ public class EmailService {
 
     private final String fileName;
 
-    private EmailTemplate(String fileName) {
+    EmailTemplate(String fileName) {
       this.fileName = fileName;
     }
 

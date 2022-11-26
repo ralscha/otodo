@@ -6,6 +6,7 @@ import static ch.rasc.otodo.db.tables.AppUser.APP_USER;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
@@ -159,12 +160,7 @@ public class SessionCacheService {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result
-          + (this.appSessionId == null ? 0 : this.appSessionId.hashCode());
-      result = prime * result + (int) (this.appUserId ^ this.appUserId >>> 32);
-      return result;
+      return Objects.hash(appSessionId, appUserId);
     }
 
     @Override
@@ -172,19 +168,11 @@ public class SessionCacheService {
       if (this == obj) {
         return true;
       }
-      if (obj == null) {
-        return false;
-      }
-      if (getClass() != obj.getClass()) {
+      if ((obj == null) || (getClass() != obj.getClass())) {
         return false;
       }
       Ids other = (Ids) obj;
-      if (this.appSessionId == null) {
-        if (other.appSessionId != null) {
-          return false;
-        }
-      }
-      else if (!this.appSessionId.equals(other.appSessionId)) {
+      if (!Objects.equals(this.appSessionId, other.appSessionId)) {
         return false;
       }
       return this.appUserId == other.appUserId;

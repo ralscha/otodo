@@ -6,12 +6,7 @@ import static ch.rasc.otodo.db.tables.AppUser.APP_USER;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
-
 import org.jooq.DSLContext;
-import org.jooq.impl.DSL;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -35,6 +30,9 @@ import ch.rasc.otodo.db.tables.records.AppSessionRecord;
 import ch.rasc.otodo.db.tables.records.AppUserRecord;
 import ch.rasc.otodo.service.EmailService;
 import ch.rasc.otodo.service.TokenService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 
 @RestController
 @Validated
@@ -83,7 +81,6 @@ class AuthController {
         String sessionId = this.tokenService.createToken();
 
         this.dsl.transaction(txConf -> {
-          var txdsl = DSL.using(txConf);
           LocalDateTime now = LocalDateTime.now();
 
           String ua = request.getHeader("user-agent");

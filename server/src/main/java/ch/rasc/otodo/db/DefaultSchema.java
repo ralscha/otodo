@@ -61,8 +61,7 @@ public class DefaultSchema extends SchemaImpl {
 
   @Override
   public final List<Table<?>> getTables() {
-    List result = new ArrayList();
-    result.addAll(getTables0());
+    List result = new ArrayList(getTables0());
     return result;
   }
 

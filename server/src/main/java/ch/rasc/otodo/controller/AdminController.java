@@ -5,8 +5,6 @@ import static ch.rasc.otodo.db.tables.AppUser.APP_USER;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.validation.constraints.NotEmpty;
-
 import org.hashids.Hashids;
 import org.jooq.DSLContext;
 import org.springframework.context.ApplicationEventPublisher;
@@ -21,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ch.rasc.otodo.config.security.SessionCacheInvalidateEvent;
 import ch.rasc.otodo.dto.User;
+import jakarta.validation.constraints.NotEmpty;
 
 @RestController
 @Validated

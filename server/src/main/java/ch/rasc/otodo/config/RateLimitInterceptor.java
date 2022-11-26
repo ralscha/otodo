@@ -1,12 +1,11 @@
 package ch.rasc.otodo.config;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import io.github.bucket4j.Bucket;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class RateLimitInterceptor implements HandlerInterceptor {
 

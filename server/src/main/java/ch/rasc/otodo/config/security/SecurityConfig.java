@@ -6,13 +6,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 
 @Configuration
-class SecurityConfig extends WebSecurityConfigurerAdapter {
+class SecurityConfig {
 
   private final AppLogoutSuccessHandler appLogoutSuccessHandler;
 
@@ -25,28 +26,27 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
   }
 
   @Bean
-  @Override
-  protected AuthenticationManager authenticationManager() throws Exception {
+  AuthenticationManager authenticationManager() {
     return authentication -> {
       throw new AuthenticationServiceException("Cannot authenticate " + authentication);
     };
   }
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     var pathPrefix = "/be";
 
     // @formatter:off
     http
     .headers(customizer -> customizer.defaultsDisabled().cacheControl())
     .sessionManagement(customizer -> customizer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-    .csrf(customizer -> customizer.disable())
+    .csrf(CsrfConfigurer::disable)
   	.logout(customizer -> {
   	  customizer.logoutSuccessHandler(this.appLogoutSuccessHandler);
   	  customizer.logoutUrl(pathPrefix + "/logout");
   	})
-    .authorizeRequests(customizer -> {
-      customizer.antMatchers(
+    .authorizeHttpRequests(customizer -> {
+      customizer.requestMatchers(
           pathPrefix + "/login",
           pathPrefix + "/signup",
           pathPrefix + "/confirm-signup",
@@ -56,12 +56,14 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
           pathPrefix + "/client-error",
           pathPrefix + "/csp-error")
             .permitAll()
-          .antMatchers(pathPrefix + "/admin/**").hasAuthority("ADMIN")
+          .requestMatchers(pathPrefix + "/admin/**").hasAuthority("ADMIN")
       	  .anyRequest().authenticated();
     })
     .exceptionHandling(customizer -> customizer.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-    .addFilterAfter(this.authHeaderFilter, SecurityContextPersistenceFilter.class);
+    .addFilterAfter(this.authHeaderFilter, SecurityContextHolderFilter.class);
     // @formatter:on
+
+    return http.build();
   }
 
 }
