@@ -24,6 +24,7 @@ public class V0002__initial_import extends BaseJavaMigration {
   @Override
   public void migrate(Context context) {
 
+    @SuppressWarnings("resource")
     DSLContext dsl = using(context.getConnection());
 
     dsl.transaction(txConf -> {
