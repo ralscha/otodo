@@ -40,7 +40,7 @@ export class EditPage implements OnInit {
     if (this.selectedTodo) {
       const alert = await this.alertController.create({
         header: 'Delete Todo',
-        message: 'Do you really want to delete this entry?</strong>',
+        message: 'Do you really want to delete this entry?',
         buttons: [
           {
             text: 'Cancel',

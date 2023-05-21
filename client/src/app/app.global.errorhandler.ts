@@ -23,7 +23,7 @@ export class AppGlobalErrorhandler implements ErrorHandler {
           const ids: string[] = [];
           for (const error of errors) {
             if (error.id) {
-              ids.push(""+error.id);
+              ids.push("" + error.id);
             }
           }
           return this.appDatabase.errors.bulkDelete(ids);

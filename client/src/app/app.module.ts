@@ -12,20 +12,20 @@ import {AppGlobalErrorhandler} from './app.global.errorhandler';
 
 
 @NgModule({
-    declarations: [AppComponent],
-    imports: [
-        BrowserModule,
-        HttpClientModule,
-        IonicModule.forRoot(),
-        AppRoutingModule,
-        ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
-    ],
-    providers: [
-        { provide: HTTP_INTERCEPTORS, useClass: AuthenticationInterceptor, multi: true },
-        { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-        { provide: ErrorHandler, useClass: AppGlobalErrorhandler }
-    ],
-    bootstrap: [AppComponent]
+  declarations: [AppComponent],
+  imports: [
+    BrowserModule,
+    HttpClientModule,
+    IonicModule.forRoot(),
+    AppRoutingModule,
+    ServiceWorkerModule.register('ngsw-worker.js', {enabled: environment.production})
+  ],
+  providers: [
+    {provide: HTTP_INTERCEPTORS, useClass: AuthenticationInterceptor, multi: true},
+    {provide: RouteReuseStrategy, useClass: IonicRouteStrategy},
+    {provide: ErrorHandler, useClass: AppGlobalErrorhandler}
+  ],
+  bootstrap: [AppComponent]
 })
 export class AppModule {
 }

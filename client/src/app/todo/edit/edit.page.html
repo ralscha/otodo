@@ -19,8 +19,8 @@
       <ion-row>
         <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
           <ion-item>
-            <ion-label position="stacked">Subject</ion-label>
-            <ion-input #subject="ngModel" [ngModel]="selectedTodo.subject" [required]="true" name="subject"></ion-input>
+            <ion-input #subject="ngModel" [ngModel]="selectedTodo.subject" [required]="true" label="Subject"
+                       labelPlacement="stacked" name="subject"></ion-input>
           </ion-item>
         </ion-col>
       </ion-row>
@@ -38,8 +38,8 @@
       <ion-row>
         <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
           <ion-item>
-            <ion-label position="stacked">Description</ion-label>
             <ion-textarea #description="ngModel" [ngModel]="selectedTodo.description" [rows]="3"
+                          label="Description" labelPlacement="stacked"
                           name="description"></ion-textarea>
           </ion-item>
         </ion-col>
@@ -55,7 +55,7 @@
   </form>
 
 
-  <ion-fab *ngIf="selectedTodo" horizontal="start" slot="fixed" vertical="bottom">
+  <ion-fab *ngIf="selectedTodo?.id" horizontal="start" slot="fixed" vertical="bottom">
     <ion-fab-button (click)="deleteTodo()">
       <ion-icon name="trash"></ion-icon>
     </ion-fab-button>

@@ -18,8 +18,9 @@
 
   <ion-searchbar (ionChange)="onSearch($event)"></ion-searchbar>
   <ion-item class="ion-margin-bottom">
-    <ion-label position="stacked">Filter</ion-label>
-    <ion-select (ionChange)="onFilterChange($event)" cancelText="Cancel" okText="Okay" value="all">
+    <ion-select (ionChange)="onFilterChange($event)" cancelText="Cancel" label="Filter" labelPlacement="stacked"
+                okText="Okay"
+                value="all">
       <ion-select-option value="all">All Users</ion-select-option>
       <ion-select-option value="disabled">Disabled Users</ion-select-option>
       <ion-select-option value="enabled">Enabled Users</ion-select-option>

@@ -28,9 +28,10 @@
       <ion-row>
         <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
           <ion-item>
-            <ion-label position="stacked">Password</ion-label>
             <ion-input #password="ngModel" [minlength]="8" [required]="true"
-                       autocomplete="current-password" name="password"
+                       autocomplete="current-password"
+                       label="Password"
+                       labelPlacement="stacked" name="password"
                        ngModel type="password"></ion-input>
           </ion-item>
         </ion-col>
