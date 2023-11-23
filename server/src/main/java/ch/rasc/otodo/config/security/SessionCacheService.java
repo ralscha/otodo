@@ -160,7 +160,7 @@ public class SessionCacheService {
 
     @Override
     public int hashCode() {
-      return Objects.hash(appSessionId, appUserId);
+      return Objects.hash(this.appSessionId, this.appUserId);
     }
 
     @Override
@@ -168,7 +168,7 @@ public class SessionCacheService {
       if (this == obj) {
         return true;
       }
-      if ((obj == null) || (getClass() != obj.getClass())) {
+      if (obj == null || getClass() != obj.getClass()) {
         return false;
       }
       Ids other = (Ids) obj;
