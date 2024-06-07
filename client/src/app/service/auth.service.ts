@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {from, Observable, of} from 'rxjs';
-import {HttpClient, HttpErrorResponse, HttpParams, HttpResponse} from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams, HttpResponse } from '@angular/common/http';
 import {catchError, filter, map, switchMap, tap} from 'rxjs/operators';
 import {AppDatabase} from '../model/app-database';
 import {ConnectionService, ConnectionState} from './connection.service';

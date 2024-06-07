@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {defer, from, fromEvent, iif, interval, merge, Observable, of, Subject} from 'rxjs';
 import {catchError, distinctUntilChanged, map, mapTo, shareReplay, switchMap, takeWhile} from 'rxjs/operators';
-import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {AppDatabase} from '../model/app-database';
 
 enum Connection {

@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {User} from '../model/user';
-import {HttpClient} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import {filter, map, mergeMap, shareReplay, tap, toArray} from 'rxjs/operators';
 import {IonItemSliding} from '@ionic/angular';
 
