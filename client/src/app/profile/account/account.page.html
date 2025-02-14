@@ -39,19 +39,29 @@
 
       <ion-row>
         <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
-          <ion-text *ngIf="deleteForm.submitted && password.invalid" color="danger">
-            <p *ngIf="password.errors?.['required']" class="ion-padding-start">
-              Password is required
-            </p>
-            <p *ngIf="password.errors?.['minlength']" class="ion-padding-start">
-              Minimum length is 8 characters
-            </p>
-          </ion-text>
-          <ion-text *ngIf="submitError" color="danger">
-            <p *ngIf="submitError === 'passwordInvalid'" class="ion-padding-start">
-              Password is invalid
-            </p>
-          </ion-text>
+          @if (deleteForm.submitted && password.invalid) {
+            <ion-text color="danger">
+              @if (password.errors?.['required']) {
+                <p class="ion-padding-start">
+                  Password is required
+                </p>
+              }
+              @if (password.errors?.['minlength']) {
+                <p class="ion-padding-start">
+                  Minimum length is 8 characters
+                </p>
+              }
+            </ion-text>
+          }
+          @if (submitError) {
+            <ion-text color="danger">
+              @if (submitError === 'passwordInvalid') {
+                <p class="ion-padding-start">
+                  Password is invalid
+                </p>
+              }
+            </ion-text>
+          }
         </ion-col>
       </ion-row>
 

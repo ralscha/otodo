@@ -4,12 +4,32 @@ import {MessagesService} from '../../service/messages.service';
 import {AlertController} from '@ionic/angular';
 import {Todo} from '../../model/todo';
 import {TodoService} from '../../service/todo.service';
-import {NgForm} from '@angular/forms';
+import {FormsModule, NgForm} from '@angular/forms';
+import {
+  IonBackButton,
+  IonButton,
+  IonButtons,
+  IonCol,
+  IonContent,
+  IonFab,
+  IonFabButton,
+  IonGrid,
+  IonHeader,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonRow,
+  IonText,
+  IonTextarea,
+  IonTitle,
+  IonToolbar
+} from "@ionic/angular/standalone";
 
 @Component({
   selector: 'app-edit',
   templateUrl: './edit.page.html',
   styleUrls: ['./edit.page.scss'],
+  imports: [FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonItem, IonInput, IonText, IonButton, IonButtons, IonBackButton, IonTextarea, IonFab, IonFabButton, IonIcon]
 })
 export class EditPage implements OnInit {
 
@@ -40,7 +60,7 @@ export class EditPage implements OnInit {
     if (this.selectedTodo) {
       const alert = await this.alertController.create({
         header: 'Delete Todo',
-        message: 'Do you really want to delete this entry?',
+        message: 'Do you really want to delete this todo?',
         buttons: [
           {
             text: 'Cancel',

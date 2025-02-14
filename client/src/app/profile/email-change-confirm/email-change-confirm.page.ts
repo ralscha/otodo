@@ -1,12 +1,24 @@
 import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, RouterLink} from '@angular/router';
 import {MessagesService} from '../../service/messages.service';
 import {ProfileService} from '../../service/profile.service';
+import {
+  IonButton,
+  IonCol,
+  IonContent,
+  IonGrid,
+  IonHeader,
+  IonRow,
+  IonText,
+  IonTitle,
+  IonToolbar
+} from "@ionic/angular/standalone";
 
 @Component({
   selector: 'app-email-change-confirm',
   templateUrl: './email-change-confirm.page.html',
   styleUrls: ['./email-change-confirm.page.scss'],
+  imports: [RouterLink, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonText, IonButton]
 })
 export class EmailChangeConfirmPage implements OnInit {
 

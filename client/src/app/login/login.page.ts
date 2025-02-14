@@ -2,11 +2,28 @@ import {Component, HostListener} from '@angular/core';
 import {NavController} from '@ionic/angular';
 import {AuthService} from '../service/auth.service';
 import {MessagesService} from '../service/messages.service';
+import {FormsModule} from '@angular/forms';
+import {RouterLink} from '@angular/router';
+import {
+  IonButton,
+  IonCol,
+  IonContent,
+  IonGrid,
+  IonHeader,
+  IonInput,
+  IonItem,
+  IonRouterLink,
+  IonRow,
+  IonText,
+  IonTitle,
+  IonToolbar
+} from "@ionic/angular/standalone";
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
+  imports: [FormsModule, RouterLink, IonRouterLink, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonItem, IonInput, IonText, IonButton]
 })
 export class LoginPage {
 

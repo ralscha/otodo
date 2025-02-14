@@ -11,21 +11,19 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular/build:application",
           "options": {
-            "outputPath": "dist/app",
+            "outputPath": {
+              "base": "dist/app"
+            },
             "index": "src/index.html",
-            "main": "src/main.ts",
-            "polyfills": "src/polyfills.ts",
+            "polyfills": [
+              "src/polyfills.ts"
+            ],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/assets",
-              {
-                "glob": "@(log-out.svg|people.svg|person.svg|menu-sharp.svg|menu-outline.svg|search-sharp.svg|close-sharp.svg|arrow-down.svg|checkmark-circle-outline.svg|add.svg|arrow-forward.svg|trash.svg|arrow-back-sharp.svg|chevron-back.svg|caret-back-sharp.svg|close.svg|chevron-forward.svg)",
-                "input": "node_modules/ionicons/dist/ionicons/svg",
-                "output": "./svg"
-              },
               {
                 "glob": "pwacompat.min.js",
                 "input": "node_modules/pwacompat/",
@@ -34,10 +32,11 @@
               "src/manifest.json"
             ],
             "styles": [
-              "src/variables.scss",
-              "src/styles.scss"
+              "src/styles.scss",
+              "src/variables.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "browser": "src/main.ts"
           },
           "configurations": {
             "production": {
@@ -62,9 +61,7 @@
               "outputHashing": "all"
             },
             "development": {
-              "buildOptimizer": false,
               "optimization": false,
-              "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
@@ -73,7 +70,7 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
+          "builder": "@angular/build:dev-server",
           "options": {
             "proxyConfig": "proxy.conf.json",
             "buildTarget": "app:build"
@@ -107,10 +104,10 @@
   },
   "schematics": {
     "@ionic/angular-toolkit:component": {
-      "styleext": "scss"
+      "styles": "scss"
     },
     "@ionic/angular-toolkit:page": {
-      "styleext": "scss"
+      "styles": "scss"
     }
   }
 }

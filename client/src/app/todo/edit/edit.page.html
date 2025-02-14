@@ -14,52 +14,56 @@
   <form #todoForm="ngForm" (ngSubmit)="todoForm.valid && save(todoForm)"
         [ngFormOptions]="{updateOn: 'submit'}" novalidate>
 
-    <ion-grid *ngIf="selectedTodo">
-
-      <ion-row>
-        <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
-          <ion-item>
-            <ion-input #subject="ngModel" [ngModel]="selectedTodo.subject" [required]="true" label="Subject"
-                       labelPlacement="stacked" name="subject"></ion-input>
-          </ion-item>
-        </ion-col>
-      </ion-row>
-
-      <ion-row>
-        <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
-          <ion-text *ngIf="todoForm.submitted && subject.invalid" color="danger">
-            <p *ngIf="subject.errors?.['required']" class="ion-padding-start">
-              Subject is required
-            </p>
-          </ion-text>
-        </ion-col>
-      </ion-row>
-
-      <ion-row>
-        <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
-          <ion-item>
-            <ion-textarea #description="ngModel" [ngModel]="selectedTodo.description" [rows]="3"
-                          label="Description" labelPlacement="stacked"
-                          name="description"></ion-textarea>
-          </ion-item>
-        </ion-col>
-      </ion-row>
-
-      <ion-row>
-        <ion-col class="ion-margin-top" offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
-          <ion-button expand="block" type="submit">Save</ion-button>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
+    @if (selectedTodo) {
+      <ion-grid>
+        <ion-row>
+          <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
+            <ion-item>
+              <ion-input #subject="ngModel" [ngModel]="selectedTodo.subject" [required]="true" label="Subject"
+                         labelPlacement="stacked" name="subject"></ion-input>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
+            @if (todoForm.submitted && subject.invalid) {
+              <ion-text color="danger">
+                @if (subject.errors?.['required']) {
+                  <p class="ion-padding-start">
+                    Subject is required
+                  </p>
+                }
+              </ion-text>
+            }
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
+            <ion-item>
+              <ion-textarea #description="ngModel" [ngModel]="selectedTodo.description" [rows]="3"
+                            label="Description" labelPlacement="stacked"
+                            name="description"></ion-textarea>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class="ion-margin-top" offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
+            <ion-button expand="block" type="submit">Save</ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    }
 
   </form>
 
 
-  <ion-fab *ngIf="selectedTodo?.id" horizontal="start" slot="fixed" vertical="bottom">
-    <ion-fab-button (click)="deleteTodo()">
-      <ion-icon name="trash"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+  @if (selectedTodo?.id) {
+    <ion-fab horizontal="start" slot="fixed" vertical="bottom">
+      <ion-fab-button (click)="deleteTodo()">
+        <ion-icon name="trash"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+  }
 
 
 </ion-content>

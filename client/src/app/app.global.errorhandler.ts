@@ -1,6 +1,6 @@
 import {ErrorHandler, Injectable} from '@angular/core';
 import {AppDatabase} from './model/app-database';
-import { HttpClient } from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {ConnectionService} from './service/connection.service';
 import {catchError, filter, mapTo, mergeMap, switchMap, take} from 'rxjs/operators';
 import {environment} from '../environments/environment';

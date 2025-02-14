@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {AppDatabase} from '../model/app-database';
 import {BehaviorSubject, lastValueFrom, Observable} from 'rxjs';
 import {Todo} from '../model/todo';

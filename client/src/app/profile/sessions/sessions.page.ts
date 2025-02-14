@@ -1,14 +1,33 @@
 import {Component, OnInit} from '@angular/core';
 import {Session} from '../../model/session';
 import {ProfileService} from '../../service/profile.service';
-// @ts-ignore
-import * as UAParser from 'ua-parser-js';
+import {UAParser} from 'ua-parser-js'
 import {MessagesService} from '../../service/messages.service';
+import {DatePipe} from '@angular/common';
+import {RelativeTimePipe} from '../../pipe/relative-time.pipe';
+import {
+  IonBackButton,
+  IonButton,
+  IonButtons,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCol,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonItem,
+  IonLabel,
+  IonRow,
+  IonTitle,
+  IonToolbar
+} from "@ionic/angular/standalone";
 
 @Component({
   selector: 'app-sessions',
   templateUrl: './sessions.page.html',
   styleUrls: ['./sessions.page.scss'],
+  imports: [DatePipe, RelativeTimePipe, IonHeader, IonToolbar, IonTitle, IonContent, IonRow, IonCol, IonItem, IonButton, IonCard, IonCardHeader, IonCardTitle, IonLabel, IonIcon, IonBackButton, IonButtons]
 })
 export class SessionsPage implements OnInit {
 

@@ -9,9 +9,11 @@
   <ion-grid class="ion-margin-top ion-text-center">
     <ion-row>
       <ion-col>
-        <ion-text *ngIf="showMsg" color="success">
-          You have been successfully logged out.
-        </ion-text>
+        @if (showMsg) {
+          <ion-text color="success">
+            You have been successfully logged out.
+          </ion-text>
+        }
       </ion-col>
     </ion-row>
 

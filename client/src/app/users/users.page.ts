@@ -1,14 +1,35 @@
 import {Component, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {User} from '../model/user';
-import { HttpClient } from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {filter, map, mergeMap, shareReplay, tap, toArray} from 'rxjs/operators';
-import {IonItemSliding} from '@ionic/angular';
+import {AsyncPipe, DatePipe} from '@angular/common';
+import {
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonItem,
+  IonItemOption,
+  IonItemOptions,
+  IonItemSliding,
+  IonLabel,
+  IonList,
+  IonMenuButton,
+  IonNote,
+  IonRefresher,
+  IonRefresherContent,
+  IonSearchbar,
+  IonSelect,
+  IonSelectOption,
+  IonTitle,
+  IonToolbar
+} from "@ionic/angular/standalone";
 
 @Component({
   selector: 'app-users',
   templateUrl: './users.page.html',
   styleUrls: ['./users.page.scss'],
+  imports: [AsyncPipe, DatePipe, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonRefresher, IonRefresherContent, IonSearchbar, IonSelect, IonSelectOption, IonList, IonItemSliding, IonLabel, IonNote, IonItemOptions, IonItemOption, IonMenuButton, IonButtons]
 })
 export class UsersPage implements OnInit {
 
