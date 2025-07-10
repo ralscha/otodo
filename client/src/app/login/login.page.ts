@@ -1,9 +1,4 @@
-import {Component, HostListener} from '@angular/core';
-import {NavController} from '@ionic/angular';
-import {AuthService} from '../service/auth.service';
-import {MessagesService} from '../service/messages.service';
-import {FormsModule} from '@angular/forms';
-import {RouterLink} from '@angular/router';
+import {Component, HostListener, inject} from '@angular/core';
 import {
   IonButton,
   IonCol,
@@ -16,8 +11,13 @@ import {
   IonRow,
   IonText,
   IonTitle,
-  IonToolbar
-} from "@ionic/angular/standalone";
+  IonToolbar,
+  NavController
+} from '@ionic/angular/standalone';
+import {AuthService} from '../service/auth.service';
+import {MessagesService} from '../service/messages.service';
+import {FormsModule} from '@angular/forms';
+import {RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -26,13 +26,10 @@ import {
   imports: [FormsModule, RouterLink, IonRouterLink, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonItem, IonInput, IonText, IonButton]
 })
 export class LoginPage {
-
   capslockOn = false;
-
-  constructor(private readonly navCtrl: NavController,
-              private readonly authService: AuthService,
-              private readonly messagesService: MessagesService) {
-  }
+  private readonly navCtrl = inject(NavController);
+  private readonly authService = inject(AuthService);
+  private readonly messagesService = inject(MessagesService);
 
   async login(email: string, password: string): Promise<void> {
     const loading = await this.messagesService.showLoading('Logging in');

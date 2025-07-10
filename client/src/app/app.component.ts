@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {AuthService} from './service/auth.service';
 import {Subscription} from 'rxjs';
 import {ConnectionService, ConnectionState} from './service/connection.service';
@@ -29,15 +29,13 @@ import {checkmarkCircleOutline, logOut, people, person} from "ionicons/icons";
   imports: [RouterLinkActive, RouterLink, IonRouterLink, IonSplitPane, IonMenu, IonApp, IonContent, IonHeader, IonToolbar, IonTitle, IonList, IonMenuToggle, IonItem, IonIcon, IonLabel, IonRouterOutlet]
 })
 export class AppComponent implements OnInit, OnDestroy {
-
   authenticated = false;
-
   appPages: { title: string, url: string, icon: string }[] = [];
-
+  private readonly authService = inject(AuthService);
+  private readonly connectionService = inject(ConnectionService);
   private subscription!: Subscription;
 
-  constructor(private readonly authService: AuthService,
-              private readonly connectionService: ConnectionService) {
+  constructor() {
     addIcons({checkmarkCircleOutline, people, person, logOut});
   }
 

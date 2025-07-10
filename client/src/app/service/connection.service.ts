@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {defer, from, fromEvent, iif, interval, merge, Observable, of, Subject} from 'rxjs';
 import {catchError, distinctUntilChanged, map, mapTo, shareReplay, switchMap, takeWhile} from 'rxjs/operators';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
@@ -49,6 +49,9 @@ export class ConnectionState {
   providedIn: 'root'
 })
 export class ConnectionService {
+  private readonly httpClient = inject(HttpClient);
+  private readonly appDatabase = inject(AppDatabase);
+
 
   private readonly connectionState$: Observable<ConnectionState>;
   private readonly lastConnectionState$: Observable<ConnectionState>;
@@ -57,8 +60,7 @@ export class ConnectionService {
   private readonly manualInject: Subject<ConnectionState> = new Subject();
   private readonly reCheckSubject: Subject<Connection> = new Subject();
 
-  constructor(private readonly httpClient: HttpClient,
-              private readonly appDatabase: AppDatabase) {
+  constructor() {
 
     this.authenticationToken$ = defer(() => from(this.appDatabase.authenticationToken.limit(1).first())
       .pipe(

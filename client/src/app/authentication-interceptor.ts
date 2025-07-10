@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
 import {from, Observable, throwError} from 'rxjs';
 import {AppDatabase} from './model/app-database';
@@ -7,13 +7,12 @@ import {Router} from '@angular/router';
 
 @Injectable()
 export class AuthenticationInterceptor implements HttpInterceptor {
+  private readonly appDatabase = inject(AppDatabase);
+  private readonly router = inject(Router);
+
 
   private readonly ignoreURLs = new Set(['/be/login', '/be/signup', '/be/confirm-signup',
     '/be/reset-password-request', '/be/reset-password', '/be/confirm-email-change']);
-
-  constructor(private readonly appDatabase: AppDatabase,
-              private readonly router: Router) {
-  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {

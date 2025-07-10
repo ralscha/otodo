@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {User} from '../model/user';
 import {HttpClient} from '@angular/common/http';
@@ -32,15 +32,12 @@ import {
   imports: [AsyncPipe, DatePipe, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonRefresher, IonRefresherContent, IonSearchbar, IonSelect, IonSelectOption, IonList, IonItemSliding, IonLabel, IonNote, IonItemOptions, IonItemOption, IonMenuButton, IonButtons]
 })
 export class UsersPage implements OnInit {
-
   users$!: Observable<User[]>;
+  private readonly httpClient = inject(HttpClient);
   private allUsers$!: Observable<User[]>;
   private httpGetUsers: Observable<User[]> = this.httpClient.get<User[]>('/be/admin/users');
   private searchFilter: string | null = null;
   private selectFilter: string | null = null;
-
-  constructor(private readonly httpClient: HttpClient) {
-  }
 
   ngOnInit(): void {
     this.allUsers$ = this.httpGetUsers.pipe(shareReplay());

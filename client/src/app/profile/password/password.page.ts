@@ -1,9 +1,8 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, inject, ViewChild} from '@angular/core';
 import {MessagesService} from '../../service/messages.service';
 import {FormsModule, NgForm} from '@angular/forms';
 import {ProfileService} from '../../service/profile.service';
 import {AuthService} from '../../service/auth.service';
-import {NavController} from '@ionic/angular';
 import {
   IonBackButton,
   IonButton,
@@ -17,8 +16,9 @@ import {
   IonRow,
   IonText,
   IonTitle,
-  IonToolbar
-} from "@ionic/angular/standalone";
+  IonToolbar,
+  NavController
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-password',
@@ -27,17 +27,13 @@ import {
   imports: [FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonItem, IonInput, IonText, IonButton, IonButtons, IonBackButton]
 })
 export class PasswordPage {
-
   submitError: string | null = null;
-
   @ViewChild('changeForm')
   changeForm!: NgForm;
-
-  constructor(private readonly profileService: ProfileService,
-              private readonly authService: AuthService,
-              private readonly navCtrl: NavController,
-              private readonly messagesService: MessagesService) {
-  }
+  private readonly profileService = inject(ProfileService);
+  private readonly authService = inject(AuthService);
+  private readonly navCtrl = inject(NavController);
+  private readonly messagesService = inject(MessagesService);
 
   async changePassword(oldPassword: string, newPassword: string): Promise<void> {
 

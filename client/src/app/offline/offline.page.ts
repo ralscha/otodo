@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {ConnectionService} from '../service/connection.service';
 import {Subscription} from 'rxjs';
 import {Router} from '@angular/router';
@@ -31,12 +31,11 @@ import {
   ]
 })
 export class OfflinePage implements OnInit, OnDestroy {
+  private readonly connectionService = inject(ConnectionService);
+  private readonly router = inject(Router);
+
 
   private subscription: Subscription | null = null;
-
-  constructor(private readonly connectionService: ConnectionService,
-              private readonly router: Router) {
-  }
 
   reconnect(): void {
     this.connectionService.reconnect();

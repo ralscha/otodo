@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {from, Observable, of} from 'rxjs';
 import {HttpClient, HttpErrorResponse, HttpParams, HttpResponse} from '@angular/common/http';
 import {catchError, filter, map, switchMap, tap} from 'rxjs/operators';
@@ -10,10 +10,12 @@ import {ConnectionService, ConnectionState} from './connection.service';
   providedIn: 'root'
 })
 export class AuthService {
+  private readonly httpClient = inject(HttpClient);
+  private readonly appDatabase = inject(AppDatabase);
+  private readonly connectionService = inject(ConnectionService);
 
-  constructor(private readonly httpClient: HttpClient,
-              private readonly appDatabase: AppDatabase,
-              private readonly connectionService: ConnectionService) {
+
+  constructor() {
 
     this.connectionService.connectionState()
       .pipe(

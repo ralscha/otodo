@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {AppDatabase} from '../model/app-database';
 import {BehaviorSubject, lastValueFrom, Observable} from 'rxjs';
@@ -10,13 +10,12 @@ import {TodoSyncResponse} from '../model/todo-sync-response';
   providedIn: 'root'
 })
 export class TodoService {
+  private readonly httpClient = inject(HttpClient);
+  private readonly appDatabase = inject(AppDatabase);
+
 
   private readonly todosSubject = new BehaviorSubject<Todo[]>([]);
   private readonly todos$ = this.todosSubject.asObservable();
-
-  constructor(private readonly httpClient: HttpClient,
-              private readonly appDatabase: AppDatabase) {
-  }
 
   private static changed(oldTodo: Todo | undefined, newTodo: Todo): boolean {
     if (oldTodo !== undefined && oldTodo.subject !== newTodo.subject) {

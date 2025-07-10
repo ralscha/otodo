@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {AuthService} from '../service/auth.service';
 import {RouterLink} from '@angular/router';
 import {
@@ -21,11 +21,8 @@ import {
   imports: [RouterLink, IonRouterLink, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonText, IonButton]
 })
 export class LogoutPage implements OnInit {
-
   showMsg = false;
-
-  constructor(private readonly authService: AuthService) {
-  }
+  private readonly authService = inject(AuthService);
 
   ngOnInit(): void {
     this.authService.logout().subscribe(() => this.showMsg = true);

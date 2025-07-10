@@ -1,4 +1,4 @@
-import {ErrorHandler, Injectable} from '@angular/core';
+import {ErrorHandler, inject, Injectable} from '@angular/core';
 import {AppDatabase} from './model/app-database';
 import {HttpClient} from '@angular/common/http';
 import {ConnectionService} from './service/connection.service';
@@ -8,10 +8,12 @@ import {from, iif, noop} from 'rxjs';
 
 @Injectable()
 export class AppGlobalErrorhandler implements ErrorHandler {
+  private readonly appDatabase = inject(AppDatabase);
+  private readonly httpClient = inject(HttpClient);
+  private readonly connectionService = inject(ConnectionService);
 
-  constructor(private readonly appDatabase: AppDatabase,
-              private readonly httpClient: HttpClient,
-              private readonly connectionService: ConnectionService) {
+
+  constructor() {
 
     this.connectionService.connectionState()
       .pipe(

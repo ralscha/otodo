@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {ProfileService} from '../../service/profile.service';
 import {MessagesService} from '../../service/messages.service';
 import {FormsModule} from '@angular/forms';
@@ -25,13 +25,10 @@ import {
   imports: [FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonItem, IonInput, IonText, IonButton, IonButtons, IonBackButton]
 })
 export class EmailPage {
-
   submitError: string | null = null;
   changeSent = false;
-
-  constructor(private readonly profileService: ProfileService,
-              private readonly messagesService: MessagesService) {
-  }
+  private readonly profileService = inject(ProfileService);
+  private readonly messagesService = inject(MessagesService);
 
   async changeEmail(newEmail: string, password: string): Promise<void> {
     const loading = await this.messagesService.showLoading('Saving email change request');

@@ -1,8 +1,4 @@
-import {Component} from '@angular/core';
-import {NavController} from '@ionic/angular';
-import {AuthService} from '../service/auth.service';
-import {MessagesService} from '../service/messages.service';
-import {FormsModule} from '@angular/forms';
+import {Component, inject} from '@angular/core';
 import {
   IonBackButton,
   IonButton,
@@ -16,8 +12,12 @@ import {
   IonRow,
   IonText,
   IonTitle,
-  IonToolbar
-} from "@ionic/angular/standalone";
+  IonToolbar,
+  NavController
+} from '@ionic/angular/standalone';
+import {AuthService} from '../service/auth.service';
+import {MessagesService} from '../service/messages.service';
+import {FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-signup',
@@ -26,14 +26,11 @@ import {
   imports: [FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonItem, IonInput, IonText, IonButton, IonButtons, IonBackButton]
 })
 export class SignupPage {
-
   signUpSent = false;
   submitError: string | null = null;
-
-  constructor(private readonly navCtrl: NavController,
-              private readonly authService: AuthService,
-              private readonly messagesService: MessagesService) {
-  }
+  private readonly navCtrl = inject(NavController);
+  private readonly authService = inject(AuthService);
+  private readonly messagesService = inject(MessagesService);
 
   async signup(email: string, password: string): Promise<void> {
     const loading = await this.messagesService.showLoading('Signing up');

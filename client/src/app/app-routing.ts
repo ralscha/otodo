@@ -29,11 +29,11 @@ export const routes: Routes = [
   },
   {
     path: 'logout',
-    loadChildren: () => import('./logout/logout.page').then(m => m.LogoutPage)
+    loadComponent: () => import('./logout/logout.page').then(m => m.LogoutPage)
   },
   {
     path: 'signup',
-    loadChildren: () => import('./signup/signup.page').then(m => m.SignupPage)
+    loadComponent: () => import('./signup/signup.page').then(m => m.SignupPage)
   },
   {
     path: 'signup-confirm',

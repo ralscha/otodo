@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
@@ -8,9 +8,8 @@ import {Session} from '../model/session';
   providedIn: 'root'
 })
 export class ProfileService {
+  private readonly httpClient = inject(HttpClient);
 
-  constructor(private readonly httpClient: HttpClient) {
-  }
 
   changePassword(oldPassword: string, newPassword: string): Observable<'INVALID' | 'WEAK_PASSWORD' | null> {
     const body = new HttpParams().set('oldPassword', oldPassword).set('newPassword', newPassword);

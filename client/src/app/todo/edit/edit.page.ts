@@ -1,11 +1,8 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {MessagesService} from '../../service/messages.service';
-import {AlertController} from '@ionic/angular';
-import {Todo} from '../../model/todo';
-import {TodoService} from '../../service/todo.service';
-import {FormsModule, NgForm} from '@angular/forms';
 import {
+  AlertController,
   IonBackButton,
   IonButton,
   IonButtons,
@@ -23,7 +20,10 @@ import {
   IonTextarea,
   IonTitle,
   IonToolbar
-} from "@ionic/angular/standalone";
+} from '@ionic/angular/standalone';
+import {Todo} from '../../model/todo';
+import {TodoService} from '../../service/todo.service';
+import {FormsModule, NgForm} from '@angular/forms';
 
 @Component({
   selector: 'app-edit',
@@ -32,15 +32,12 @@ import {
   imports: [FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonItem, IonInput, IonText, IonButton, IonButtons, IonBackButton, IonTextarea, IonFab, IonFabButton, IonIcon]
 })
 export class EditPage implements OnInit {
-
   selectedTodo: Todo | undefined;
-
-  constructor(private readonly route: ActivatedRoute,
-              private readonly router: Router,
-              private readonly messagesService: MessagesService,
-              private readonly alertController: AlertController,
-              private readonly todoService: TodoService) {
-  }
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly messagesService = inject(MessagesService);
+  private readonly alertController = inject(AlertController);
+  private readonly todoService = inject(TodoService);
 
   async ngOnInit(): Promise<void> {
     const todoIdString = this.route.snapshot.paramMap.get('id');

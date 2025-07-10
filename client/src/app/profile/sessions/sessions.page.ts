@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {Session} from '../../model/session';
 import {ProfileService} from '../../service/profile.service';
 import {UAParser} from 'ua-parser-js'
@@ -30,12 +30,9 @@ import {
   imports: [DatePipe, RelativeTimePipe, IonHeader, IonToolbar, IonTitle, IonContent, IonRow, IonCol, IonItem, IonButton, IonCard, IonCardHeader, IonCardTitle, IonLabel, IonIcon, IonBackButton, IonButtons]
 })
 export class SessionsPage implements OnInit {
-
   sessions: Session[] = [];
-
-  constructor(private readonly profileService: ProfileService,
-              private readonly messagesService: MessagesService) {
-  }
+  private readonly profileService = inject(ProfileService);
+  private readonly messagesService = inject(MessagesService);
 
   private static parseUA(userAgent: string): { uaBrowser: string, uaOs: string, uaDevice: string } {
     const ua = new UAParser(userAgent).getResult();

@@ -1,10 +1,7 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, inject, ViewChild} from '@angular/core';
 import {MessagesService} from '../../service/messages.service';
-import {AlertController, NavController} from '@ionic/angular';
-import {AppDatabase} from '../../model/app-database';
-import {FormsModule, NgForm} from '@angular/forms';
-import {ProfileService} from '../../service/profile.service';
 import {
+  AlertController,
   IonBackButton,
   IonButton,
   IonButtons,
@@ -17,8 +14,12 @@ import {
   IonRow,
   IonText,
   IonTitle,
-  IonToolbar
-} from "@ionic/angular/standalone";
+  IonToolbar,
+  NavController
+} from '@ionic/angular/standalone';
+import {AppDatabase} from '../../model/app-database';
+import {FormsModule, NgForm} from '@angular/forms';
+import {ProfileService} from '../../service/profile.service';
 
 @Component({
   selector: 'app-account',
@@ -27,18 +28,14 @@ import {
   imports: [FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonItem, IonInput, IonText, IonButton, IonButtons, IonBackButton]
 })
 export class AccountPage {
-
   submitError: string | null = null;
-
   @ViewChild('deleteForm')
   deleteForm!: NgForm;
-
-  constructor(private readonly navCtrl: NavController,
-              private readonly profileService: ProfileService,
-              private readonly messagesService: MessagesService,
-              private readonly appDatabase: AppDatabase,
-              private readonly alertController: AlertController) {
-  }
+  private readonly navCtrl = inject(NavController);
+  private readonly profileService = inject(ProfileService);
+  private readonly messagesService = inject(MessagesService);
+  private readonly appDatabase = inject(AppDatabase);
+  private readonly alertController = inject(AlertController);
 
   async deleteAccount(password: string): Promise<void> {
     this.submitError = null;

@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {AuthService} from '../service/auth.service';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {MessagesService} from '../service/messages.service';
@@ -25,15 +25,12 @@ import {
   imports: [FormsModule, RouterLink, IonRouterLink, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonItem, IonInput, IonText, IonButton]
 })
 export class PasswordResetPage implements OnInit {
-
   success: boolean | null = null;
   resetToken: string | null = null;
   submitError: string | null = null;
-
-  constructor(private readonly authService: AuthService,
-              private readonly route: ActivatedRoute,
-              private readonly messagesService: MessagesService) {
-  }
+  private readonly authService = inject(AuthService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly messagesService = inject(MessagesService);
 
   async ngOnInit(): Promise<void> {
     this.resetToken = this.route.snapshot.paramMap.get('token');

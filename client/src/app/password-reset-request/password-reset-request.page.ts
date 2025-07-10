@@ -1,5 +1,4 @@
-import {Component} from '@angular/core';
-import {NavController} from '@ionic/angular';
+import {Component, inject} from '@angular/core';
 import {AuthService} from '../service/auth.service';
 import {MessagesService} from '../service/messages.service';
 import {FormsModule} from '@angular/forms';
@@ -26,12 +25,9 @@ import {
   imports: [FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonItem, IonInput, IonText, IonButton, IonButtons, IonBackButton]
 })
 export class PasswordResetRequestPage {
-
   resetSent = false;
-
-  constructor(private readonly authService: AuthService,
-              private readonly messagesService: MessagesService) {
-  }
+  private readonly authService = inject(AuthService);
+  private readonly messagesService = inject(MessagesService);
 
   async resetRequest(email: string): Promise<void> {
 
