@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/todos"></ion-back-button>
+      <ion-back-button defaultHref="/todos" />
     </ion-buttons>
     <ion-title>
       Edit Todo
@@ -20,7 +20,7 @@
           <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
             <ion-item>
               <ion-input #subject="ngModel" [ngModel]="selectedTodo.subject" [required]="true" label="Subject"
-                         labelPlacement="stacked" name="subject"></ion-input>
+                         labelPlacement="stacked" name="subject" />
             </ion-item>
           </ion-col>
         </ion-row>
@@ -42,7 +42,7 @@
             <ion-item>
               <ion-textarea #description="ngModel" [ngModel]="selectedTodo.description" [rows]="3"
                             label="Description" labelPlacement="stacked"
-                            name="description"></ion-textarea>
+                            name="description" />
             </ion-item>
           </ion-col>
         </ion-row>
@@ -60,7 +60,7 @@
   @if (selectedTodo?.id) {
     <ion-fab horizontal="start" slot="fixed" vertical="bottom">
       <ion-fab-button (click)="deleteTodo()">
-        <ion-icon name="trash"></ion-icon>
+        <ion-icon name="trash" />
       </ion-fab-button>
     </ion-fab>
   }

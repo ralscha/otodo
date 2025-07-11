@@ -1,4 +1,4 @@
-import {Component, inject, ViewChild} from '@angular/core';
+import {Component, inject, viewChild} from '@angular/core';
 import {MessagesService} from '../../service/messages.service';
 import {FormsModule, NgForm} from '@angular/forms';
 import {ProfileService} from '../../service/profile.service';
@@ -28,8 +28,7 @@ import {
 })
 export class PasswordPage {
   submitError: string | null = null;
-  @ViewChild('changeForm')
-  changeForm!: NgForm;
+  readonly changeForm = viewChild.required<NgForm>('changeForm');
   private readonly profileService = inject(ProfileService);
   private readonly authService = inject(AuthService);
   private readonly navCtrl = inject(NavController);
@@ -44,7 +43,7 @@ export class PasswordPage {
       .subscribe(async (response) => {
         await loading.dismiss();
         if (!response) {
-          this.changeForm.resetForm();
+          this.changeForm().resetForm();
           await this.messagesService.showSuccessToast('Password successfully changed');
           await this.authService.deleteTokens();
           await this.navCtrl.navigateRoot('/login');

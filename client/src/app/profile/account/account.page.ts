@@ -1,4 +1,4 @@
-import {Component, inject, ViewChild} from '@angular/core';
+import {Component, inject, viewChild} from '@angular/core';
 import {MessagesService} from '../../service/messages.service';
 import {
   AlertController,
@@ -29,8 +29,7 @@ import {ProfileService} from '../../service/profile.service';
 })
 export class AccountPage {
   submitError: string | null = null;
-  @ViewChild('deleteForm')
-  deleteForm!: NgForm;
+  readonly deleteForm = viewChild.required<NgForm>('deleteForm');
   private readonly navCtrl = inject(NavController);
   private readonly profileService = inject(ProfileService);
   private readonly messagesService = inject(MessagesService);
@@ -48,7 +47,7 @@ export class AccountPage {
           text: 'Cancel',
           role: 'cancel',
           handler: () => {
-            this.deleteForm.resetForm();
+            this.deleteForm().resetForm();
           }
         }, {
           text: 'Delete Account',
@@ -72,7 +71,7 @@ export class AccountPage {
           await this.appDatabase.authenticationToken.clear();
           await this.navCtrl.navigateRoot('/login');
         } else {
-          this.deleteForm.resetForm();
+          this.deleteForm().resetForm();
           this.submitError = 'passwordInvalid';
           await this.messagesService.showErrorToast('Password invalid');
         }
