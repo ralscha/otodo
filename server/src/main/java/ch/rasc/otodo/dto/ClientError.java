@@ -1,41 +1,43 @@
 package ch.rasc.otodo.dto;
 
 public class ClientError {
-  private long ts;
-  private UserAgent userAgent;
-  private String error;
 
-  public ClientError() {
-  }
+	private long ts;
 
-  public long getTs() {
-    return this.ts;
-  }
+	private UserAgent userAgent;
 
-  public void setTs(long ts) {
-    this.ts = ts;
-  }
+	private String error;
 
-  public UserAgent getUserAgent() {
-    return this.userAgent;
-  }
+	public ClientError() {
+	}
 
-  public void setUserAgent(UserAgent userAgent) {
-    this.userAgent = userAgent;
-  }
+	public long getTs() {
+		return this.ts;
+	}
 
-  public String getError() {
-    return this.error;
-  }
+	public void setTs(long ts) {
+		this.ts = ts;
+	}
 
-  public void setError(String error) {
-    this.error = error;
-  }
+	public UserAgent getUserAgent() {
+		return this.userAgent;
+	}
 
-  @Override
-  public String toString() {
-    return "ClientError [ts=" + this.ts + ", userAgent=" + this.userAgent + ", error="
-        + this.error + "]";
-  }
+	public void setUserAgent(UserAgent userAgent) {
+		this.userAgent = userAgent;
+	}
+
+	public String getError() {
+		return this.error;
+	}
+
+	public void setError(String error) {
+		this.error = error;
+	}
+
+	@Override
+	public String toString() {
+		return "ClientError [ts=" + this.ts + ", userAgent=" + this.userAgent + ", error=" + this.error + "]";
+	}
 
 }

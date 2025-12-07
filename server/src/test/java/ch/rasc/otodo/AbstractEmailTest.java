@@ -10,28 +10,28 @@ import com.icegreen.greenmail.util.ServerSetup;
 
 public abstract class AbstractEmailTest extends AbstractBaseTest {
 
-  @Autowired
-  private JavaMailSender emailSender;
+	@Autowired
+	private JavaMailSender emailSender;
 
-  private static GreenMail smtpServer;
+	private static GreenMail smtpServer;
 
-  @BeforeAll
-  public static void setupSMTP() {
-    smtpServer = new GreenMail(new ServerSetup(2525, "127.0.0.1", "smtp"));
-    smtpServer.start();
-  }
+	@BeforeAll
+	public static void setupSMTP() {
+		smtpServer = new GreenMail(new ServerSetup(2525, "127.0.0.1", "smtp"));
+		smtpServer.start();
+	}
 
-  @AfterAll
-  public static void tearDownSMTP() {
-    smtpServer.stop();
-  }
+	@AfterAll
+	public static void tearDownSMTP() {
+		smtpServer.stop();
+	}
 
-  static GreenMail getSmtpServer() {
-    return smtpServer;
-  }
+	static GreenMail getSmtpServer() {
+		return smtpServer;
+	}
 
-  public JavaMailSender getEmailSender() {
-    return this.emailSender;
-  }
+	public JavaMailSender getEmailSender() {
+		return this.emailSender;
+	}
 
 }

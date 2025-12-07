@@ -8,32 +8,31 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class CspReport {
 
-  @JsonProperty("csp-report")
-  private CspViolation cspReport;
+	@JsonProperty("csp-report")
+	private CspViolation cspReport;
 
-  public CspViolation getCspReport() {
-    return this.cspReport;
-  }
+	public CspViolation getCspReport() {
+		return this.cspReport;
+	}
 
-  public void setCspReport(CspViolation cspReport) {
-    this.cspReport = cspReport;
-  }
+	public void setCspReport(CspViolation cspReport) {
+		this.cspReport = cspReport;
+	}
 
-  private final Map<String, Object> unrecognizedFields = new HashMap<>();
+	private final Map<String, Object> unrecognizedFields = new HashMap<>();
 
-  public Map<String, Object> getUnrecognizedFields() {
-    return this.unrecognizedFields;
-  }
+	public Map<String, Object> getUnrecognizedFields() {
+		return this.unrecognizedFields;
+	}
 
-  @JsonAnySetter
-  public void setUnrecognizedFields(String key, Object value) {
-    this.unrecognizedFields.put(key, value);
-  }
+	@JsonAnySetter
+	public void setUnrecognizedFields(String key, Object value) {
+		this.unrecognizedFields.put(key, value);
+	}
 
-  @Override
-  public String toString() {
-    return "CspReport [cspReport=" + this.cspReport + ", unrecognizedFields="
-        + this.unrecognizedFields + "]";
-  }
+	@Override
+	public String toString() {
+		return "CspReport [cspReport=" + this.cspReport + ", unrecognizedFields=" + this.unrecognizedFields + "]";
+	}
 
 }

@@ -24,145 +24,142 @@ import jakarta.mail.internet.MimeMessage;
 @Service
 public class EmailService {
 
-  private final JavaMailSender mailSender;
+	private final JavaMailSender mailSender;
 
-  private final String defaultSender;
+	private final String defaultSender;
 
-  private final String appUrl;
+	private final String appUrl;
 
-  private final String appName;
+	private final String appName;
 
-  enum EmailTemplate {
-    PASSWORD_RESET("password-reset.html"), SIGNUP_CONFIRM("signup-confirm.html"),
-    EMAIL_CHANGE("email-change.html"), PASSWORD_CHANGED("password-changed.html");
+	enum EmailTemplate {
 
-    private final String fileName;
+		PASSWORD_RESET("password-reset.html"), SIGNUP_CONFIRM("signup-confirm.html"), EMAIL_CHANGE("email-change.html"),
+		PASSWORD_CHANGED("password-changed.html");
 
-    EmailTemplate(String fileName) {
-      this.fileName = fileName;
-    }
+		private final String fileName;
 
-    public String getFileName() {
-      return this.fileName;
-    }
-  }
+		EmailTemplate(String fileName) {
+			this.fileName = fileName;
+		}
 
-  private final Map<EmailTemplate, Template> templates = new HashMap<>();
+		public String getFileName() {
+			return this.fileName;
+		}
 
-  public EmailService(JavaMailSender mailSender, AppProperties appProperties,
-      Mustache.Compiler mustacheCompiler,
-      @Value("${spring.application.name}") String appName) {
+	}
 
-    this.mailSender = mailSender;
-    this.defaultSender = appProperties.getDefaultEmailSender();
-    this.appUrl = appProperties.getUrl();
-    this.appName = appName;
+	private final Map<EmailTemplate, Template> templates = new HashMap<>();
 
-    for (EmailTemplate et : EmailTemplate.values()) {
-      ClassPathResource cp = new ClassPathResource("emails/" + et.getFileName());
-      try (InputStream is = cp.getInputStream()) {
-        this.templates.put(et, mustacheCompiler.compile(new InputStreamReader(is)));
-      }
-      catch (IOException e) {
-        Application.log.error("mustache compile failed", e);
-      }
-    }
-  }
+	public EmailService(JavaMailSender mailSender, AppProperties appProperties, Mustache.Compiler mustacheCompiler,
+			@Value("${spring.application.name}") String appName) {
 
-  @Async
-  public void sendPasswordResetEmail(String email, String resetToken) {
-    String resetLink = this.appUrl.trim();
-    if (!resetLink.endsWith("/")) {
-      resetLink += "/";
-    }
-    resetLink += "#/password-reset/" + resetToken;
+		this.mailSender = mailSender;
+		this.defaultSender = appProperties.getDefaultEmailSender();
+		this.appUrl = appProperties.getUrl();
+		this.appName = appName;
 
-    Map<String, Object> data = new HashMap<>();
-    data.put("resetLink", resetLink);
+		for (EmailTemplate et : EmailTemplate.values()) {
+			ClassPathResource cp = new ClassPathResource("emails/" + et.getFileName());
+			try (InputStream is = cp.getInputStream()) {
+				this.templates.put(et, mustacheCompiler.compile(new InputStreamReader(is)));
+			}
+			catch (IOException e) {
+				Application.log.error("mustache compile failed", e);
+			}
+		}
+	}
 
-    try {
-      sendHtmlMessage(this.defaultSender, email, this.appName + ": " + "Password Reset",
-          this.templates.get(EmailTemplate.PASSWORD_RESET).execute(data));
-    }
-    catch (MessagingException e) {
-      Application.log.error("sendPasswordResetEmail", e);
-    }
-  }
+	@Async
+	public void sendPasswordResetEmail(String email, String resetToken) {
+		String resetLink = this.appUrl.trim();
+		if (!resetLink.endsWith("/")) {
+			resetLink += "/";
+		}
+		resetLink += "#/password-reset/" + resetToken;
 
-  @Async
-  public void sendEmailConfirmationEmail(String email, String confirmationToken) {
-    String confirmationLink = this.appUrl.trim();
-    if (!confirmationLink.endsWith("/")) {
-      confirmationLink += "/";
-    }
-    confirmationLink += "#/signup-confirm/" + confirmationToken;
+		Map<String, Object> data = new HashMap<>();
+		data.put("resetLink", resetLink);
 
-    Map<String, Object> data = new HashMap<>();
-    data.put("confirmationLink", confirmationLink);
+		try {
+			sendHtmlMessage(this.defaultSender, email, this.appName + ": " + "Password Reset",
+					this.templates.get(EmailTemplate.PASSWORD_RESET).execute(data));
+		}
+		catch (MessagingException e) {
+			Application.log.error("sendPasswordResetEmail", e);
+		}
+	}
 
-    try {
-      sendHtmlMessage(this.defaultSender, email,
-          this.appName + ": " + "Sign Up Confirmation",
-          this.templates.get(EmailTemplate.SIGNUP_CONFIRM).execute(data));
-    }
-    catch (MessagingException e) {
-      Application.log.error("sendEmailConfirmationEmail", e);
-    }
-  }
+	@Async
+	public void sendEmailConfirmationEmail(String email, String confirmationToken) {
+		String confirmationLink = this.appUrl.trim();
+		if (!confirmationLink.endsWith("/")) {
+			confirmationLink += "/";
+		}
+		confirmationLink += "#/signup-confirm/" + confirmationToken;
 
-  @Async
-  public void sendEmailChangeConfirmationEmail(String email, String confirmationToken) {
-    String confirmationLink = this.appUrl.trim();
-    if (!confirmationLink.endsWith("/")) {
-      confirmationLink += "/";
-    }
-    confirmationLink += "#/email-change-confirm/" + confirmationToken;
+		Map<String, Object> data = new HashMap<>();
+		data.put("confirmationLink", confirmationLink);
 
-    Map<String, Object> data = new HashMap<>();
-    data.put("confirmationLink", confirmationLink);
+		try {
+			sendHtmlMessage(this.defaultSender, email, this.appName + ": " + "Sign Up Confirmation",
+					this.templates.get(EmailTemplate.SIGNUP_CONFIRM).execute(data));
+		}
+		catch (MessagingException e) {
+			Application.log.error("sendEmailConfirmationEmail", e);
+		}
+	}
 
-    try {
-      sendHtmlMessage(this.defaultSender, email,
-          this.appName + ": " + "Email Change Confirmation",
-          this.templates.get(EmailTemplate.EMAIL_CHANGE).execute(data));
-    }
-    catch (MessagingException e) {
-      Application.log.error("sendEmailChangeConfirmationEmail", e);
-    }
-  }
+	@Async
+	public void sendEmailChangeConfirmationEmail(String email, String confirmationToken) {
+		String confirmationLink = this.appUrl.trim();
+		if (!confirmationLink.endsWith("/")) {
+			confirmationLink += "/";
+		}
+		confirmationLink += "#/email-change-confirm/" + confirmationToken;
 
-  @Async
-  public void sendPasswordChangedEmail(String email) {
-    String passwordResetLink = this.appUrl.trim();
-    if (!passwordResetLink.endsWith("/")) {
-      passwordResetLink += "/";
-    }
-    passwordResetLink += "#/password-reset-request";
+		Map<String, Object> data = new HashMap<>();
+		data.put("confirmationLink", confirmationLink);
 
-    Map<String, Object> data = new HashMap<>();
-    data.put("resetLink", passwordResetLink);
+		try {
+			sendHtmlMessage(this.defaultSender, email, this.appName + ": " + "Email Change Confirmation",
+					this.templates.get(EmailTemplate.EMAIL_CHANGE).execute(data));
+		}
+		catch (MessagingException e) {
+			Application.log.error("sendEmailChangeConfirmationEmail", e);
+		}
+	}
 
-    try {
-      sendHtmlMessage(this.defaultSender, email, this.appName + ": " + "Password Changed",
-          this.templates.get(EmailTemplate.PASSWORD_CHANGED).execute(data));
-    }
-    catch (MessagingException e) {
-      Application.log.error("sendPasswordChangedEmail", e);
-    }
-  }
+	@Async
+	public void sendPasswordChangedEmail(String email) {
+		String passwordResetLink = this.appUrl.trim();
+		if (!passwordResetLink.endsWith("/")) {
+			passwordResetLink += "/";
+		}
+		passwordResetLink += "#/password-reset-request";
 
-  @SuppressWarnings("null")
-  private void sendHtmlMessage(String from, String to, String subject, String text)
-      throws MessagingException {
-    MimeMessage message = this.mailSender.createMimeMessage();
-    MimeMessageHelper helper = new MimeMessageHelper(message);
-    helper.setFrom(this.defaultSender);
-    helper.setTo(to);
-    helper.setReplyTo(from);
-    helper.setText(text, true);
-    helper.setSubject(subject);
+		Map<String, Object> data = new HashMap<>();
+		data.put("resetLink", passwordResetLink);
 
-    this.mailSender.send(message);
-  }
+		try {
+			sendHtmlMessage(this.defaultSender, email, this.appName + ": " + "Password Changed",
+					this.templates.get(EmailTemplate.PASSWORD_CHANGED).execute(data));
+		}
+		catch (MessagingException e) {
+			Application.log.error("sendPasswordChangedEmail", e);
+		}
+	}
+
+	private void sendHtmlMessage(String from, String to, String subject, String text) throws MessagingException {
+		MimeMessage message = this.mailSender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(message);
+		helper.setFrom(this.defaultSender);
+		helper.setTo(to);
+		helper.setReplyTo(from);
+		helper.setText(text, true);
+		helper.setSubject(subject);
+
+		this.mailSender.send(message);
+	}
 
 }

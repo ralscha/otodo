@@ -14,28 +14,28 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 class AppLogoutSuccessHandler implements LogoutSuccessHandler {
 
-  private final DSLContext dsl;
+	private final DSLContext dsl;
 
-  private final ApplicationEventPublisher publisher;
+	private final ApplicationEventPublisher publisher;
 
-  public AppLogoutSuccessHandler(DSLContext dsl, ApplicationEventPublisher publisher) {
-    this.dsl = dsl;
-    this.publisher = publisher;
-  }
+	public AppLogoutSuccessHandler(DSLContext dsl, ApplicationEventPublisher publisher) {
+		this.dsl = dsl;
+		this.publisher = publisher;
+	}
 
-  @Override
-  public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
-      Authentication authentication) {
+	@Override
+	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
+			Authentication authentication) {
 
-    String sessionId = request.getHeader(AuthHeaderFilter.HEADER_NAME);
-    if (sessionId != null) {
+		String sessionId = request.getHeader(AuthHeaderFilter.HEADER_NAME);
+		if (sessionId != null) {
 
-      this.publisher.publishEvent(SessionCacheInvalidateEvent.ofSessionId(sessionId));
+			this.publisher.publishEvent(SessionCacheInvalidateEvent.ofSessionId(sessionId));
 
-      this.dsl.delete(APP_SESSION).where(APP_SESSION.ID.eq(sessionId)).execute();
-    }
+			this.dsl.delete(APP_SESSION).where(APP_SESSION.ID.eq(sessionId)).execute();
+		}
 
-    response.setStatus(HttpServletResponse.SC_OK);
-  }
+		response.setStatus(HttpServletResponse.SC_OK);
+	}
 
 }

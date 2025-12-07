@@ -23,129 +23,124 @@ import com.icegreen.greenmail.store.FolderException;
 
 import ch.rasc.otodo.db.tables.records.AppUserRecord;
 
-@SuppressWarnings("null")
 class PasswordResetTest extends AbstractEmailTest {
 
-  @Test
-  void resetUnknownUser() {
-    sendPasswordResetRequest("unknownuser@test.com", true);
-  }
+	@Test
+	void resetUnknownUser() {
+		sendPasswordResetRequest("unknownuser@test.com", true);
+	}
 
-  @Test
-  void resetConfirmationWrongToken() {
-    sendPasswordRequest("wrong_token", "new_password", "INVALID");
-  }
+	@Test
+	void resetConfirmationWrongToken() {
+		sendPasswordRequest("wrong_token", "new_password", "INVALID");
+	}
 
-  @Test
-  void resetConfirmationAfterTokenMaxAge()
-      throws MessagingException, IOException, FolderException {
-    String email = "user@test.com";
-    sendPasswordResetRequest(email, true);
-    String token = getResetToken(email);
+	@Test
+	void resetConfirmationAfterTokenMaxAge() throws MessagingException, IOException, FolderException {
+		String email = "user@test.com";
+		sendPasswordResetRequest(email, true);
+		String token = getResetToken(email);
 
-    getUtilService().sendLogin(email, "password", 200, "USER");
+		getUtilService().sendLogin(email, "password", 200, "USER");
 
-    AppUserRecord appUser = getUtilService().getUser(email);
-    assertThat(appUser.getEnabled()).isTrue();
-    assertThat(appUser.getPasswordResetToken()).isEqualTo(token);
-    assertThat(appUser.getPasswordResetTokenCreated()).isBefore(LocalDateTime.now());
+		AppUserRecord appUser = getUtilService().getUser(email);
+		assertThat(appUser.getEnabled()).isTrue();
+		assertThat(appUser.getPasswordResetToken()).isEqualTo(token);
+		assertThat(appUser.getPasswordResetTokenCreated()).isBefore(LocalDateTime.now());
 
-    getDsl().update(APP_USER)
-        .set(APP_USER.PASSWORD_RESET_TOKEN_CREATED,
-            appUser.getPasswordResetTokenCreated()
-                .minus(getAppProperties().getPasswordResetTokenMaxAge()))
-        .where(APP_USER.ID.eq(appUser.getId())).execute();
+		getDsl().update(APP_USER)
+			.set(APP_USER.PASSWORD_RESET_TOKEN_CREATED,
+					appUser.getPasswordResetTokenCreated().minus(getAppProperties().getPasswordResetTokenMaxAge()))
+			.where(APP_USER.ID.eq(appUser.getId()))
+			.execute();
 
-    sendPasswordRequest(token, "new_password", "INVALID");
+		sendPasswordRequest(token, "new_password", "INVALID");
 
-    appUser = getUtilService().getUser(email);
-    assertThat(appUser.getEnabled()).isTrue();
-    assertThat(appUser.getPasswordResetToken()).isNull();
-    assertThat(appUser.getPasswordResetTokenCreated()).isNull();
+		appUser = getUtilService().getUser(email);
+		assertThat(appUser.getEnabled()).isTrue();
+		assertThat(appUser.getPasswordResetToken()).isNull();
+		assertThat(appUser.getPasswordResetTokenCreated()).isNull();
 
-    getUtilService().sendLogin(email, "new_password", 401, null);
-    getUtilService().sendLogin(email, "password", 200, "USER");
-  }
+		getUtilService().sendLogin(email, "new_password", 401, null);
+		getUtilService().sendLogin(email, "password", 200, "USER");
+	}
 
-  @Test
-  void resetOkay() throws MessagingException, IOException, FolderException {
-    String email = "user@test.com";
-    sendPasswordResetRequest(email, true);
-    String token = getResetToken(email);
+	@Test
+	void resetOkay() throws MessagingException, IOException, FolderException {
+		String email = "user@test.com";
+		sendPasswordResetRequest(email, true);
+		String token = getResetToken(email);
 
-    getUtilService().sendLogin(email, "password", 200, "USER");
+		getUtilService().sendLogin(email, "password", 200, "USER");
 
-    AppUserRecord appUser = getUtilService().getUser(email);
-    assertThat(appUser.getEnabled()).isTrue();
-    assertThat(appUser.getPasswordResetToken()).isEqualTo(token);
-    assertThat(appUser.getPasswordResetTokenCreated()).isBefore(LocalDateTime.now());
+		AppUserRecord appUser = getUtilService().getUser(email);
+		assertThat(appUser.getEnabled()).isTrue();
+		assertThat(appUser.getPasswordResetToken()).isEqualTo(token);
+		assertThat(appUser.getPasswordResetTokenCreated()).isBefore(LocalDateTime.now());
 
-    sendPasswordRequest(token, "1234567890", "WEAK_PASSWORD");
-    sendPasswordRequest(token, "new_password", null);
+		sendPasswordRequest(token, "1234567890", "WEAK_PASSWORD");
+		sendPasswordRequest(token, "new_password", null);
 
-    appUser = getUtilService().getUser(email);
-    assertThat(appUser.getEnabled()).isTrue();
-    assertThat(appUser.getPasswordResetToken()).isNull();
-    assertThat(appUser.getPasswordResetTokenCreated()).isNull();
+		appUser = getUtilService().getUser(email);
+		assertThat(appUser.getEnabled()).isTrue();
+		assertThat(appUser.getPasswordResetToken()).isNull();
+		assertThat(appUser.getPasswordResetTokenCreated()).isNull();
 
-    getUtilService().sendLogin(email, "password", 401, null);
-    getUtilService().sendLogin(email, "new_password", 200, "USER");
+		getUtilService().sendLogin(email, "password", 401, null);
+		getUtilService().sendLogin(email, "new_password", 200, "USER");
 
-    getDsl().update(APP_USER)
-        .set(APP_USER.PASSWORD_HASH, this.getPasswordEncoder().encode("password"))
-        .where(APP_USER.EMAIL.eq(email)).execute();
-  }
+		getDsl().update(APP_USER)
+			.set(APP_USER.PASSWORD_HASH, this.getPasswordEncoder().encode("password"))
+			.where(APP_USER.EMAIL.eq(email))
+			.execute();
+	}
 
-  private String getResetToken(String recipientEmailAddress)
-      throws MessagingException, IOException, FolderException {
-    getSmtpServer().waitForIncomingEmail(1);
-    MimeMessage confirmationMessage = getSmtpServer().getReceivedMessages()[0];
+	private String getResetToken(String recipientEmailAddress) throws MessagingException, IOException, FolderException {
+		getSmtpServer().waitForIncomingEmail(1);
+		MimeMessage confirmationMessage = getSmtpServer().getReceivedMessages()[0];
 
-    assertThat(confirmationMessage.getSubject()).endsWith("Password Reset");
-    assertThat(confirmationMessage.getRecipients(RecipientType.TO)[0].toString())
-        .isEqualTo(recipientEmailAddress);
-    assertThat(confirmationMessage.getFrom()[0].toString())
-        .isEqualTo(getAppProperties().getDefaultEmailSender());
+		assertThat(confirmationMessage.getSubject()).endsWith("Password Reset");
+		assertThat(confirmationMessage.getRecipients(RecipientType.TO)[0].toString()).isEqualTo(recipientEmailAddress);
+		assertThat(confirmationMessage.getFrom()[0].toString()).isEqualTo(getAppProperties().getDefaultEmailSender());
 
-    String emailContent = (String) confirmationMessage.getContent();
-    Pattern linkPattern = Pattern.compile("http://.*/#/password-reset/([^\"]+)");
-    Matcher matcher = linkPattern.matcher(emailContent);
-    assertThat(matcher.find()).isTrue();
-    String token = matcher.group(1);
-    getSmtpServer().purgeEmailFromAllMailboxes();
+		String emailContent = (String) confirmationMessage.getContent();
+		Pattern linkPattern = Pattern.compile("http://.*/#/password-reset/([^\"]+)");
+		Matcher matcher = linkPattern.matcher(emailContent);
+		assertThat(matcher.find()).isTrue();
+		String token = matcher.group(1);
+		getSmtpServer().purgeEmailFromAllMailboxes();
 
-    return token;
-  }
+		return token;
+	}
 
-  private void sendPasswordResetRequest(String email, boolean expectedResponse) {
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.TEXT_PLAIN);
+	private void sendPasswordResetRequest(String email, boolean expectedResponse) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.TEXT_PLAIN);
 
-    var response = getRestTemplate().postForEntity("/be/reset-password-request",
-        new HttpEntity<>(email, headers), boolean.class);
+		var response = getRestTemplate().postForEntity("/be/reset-password-request", new HttpEntity<>(email, headers),
+				boolean.class);
 
-    assertThat(response.getStatusCode().value()).isEqualTo(200);
-    assertThat(response.getBody()).isEqualTo(expectedResponse);
-  }
+		assertThat(response.getStatusCode().value()).isEqualTo(200);
+		assertThat(response.getBody()).isEqualTo(expectedResponse);
+	}
 
-  private void sendPasswordRequest(String token, String newPassword,
-      String expectedResponse) {
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+	private void sendPasswordRequest(String token, String newPassword, String expectedResponse) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-    var body = new LinkedMultiValueMap<String, String>();
-    body.add("resetToken", token);
-    body.add("password", newPassword);
-    ResponseEntity<String> response = getRestTemplate().postForEntity(
-        "/be/reset-password", new HttpEntity<>(body, headers), String.class);
+		var body = new LinkedMultiValueMap<String, String>();
+		body.add("resetToken", token);
+		body.add("password", newPassword);
+		ResponseEntity<String> response = getRestTemplate().postForEntity("/be/reset-password",
+				new HttpEntity<>(body, headers), String.class);
 
-    assertThat(response.getStatusCode().value()).isEqualTo(200);
-    if (expectedResponse == null) {
-      assertThat(response.getBody()).isNull();
-    }
-    else {
-      assertThat(response.getBody()).isEqualTo("\"" + expectedResponse + "\"");
-    }
-  }
+		assertThat(response.getStatusCode().value()).isEqualTo(200);
+		if (expectedResponse == null) {
+			assertThat(response.getBody()).isNull();
+		}
+		else {
+			assertThat(response.getBody()).isEqualTo("\"" + expectedResponse + "\"");
+		}
+	}
 
 }

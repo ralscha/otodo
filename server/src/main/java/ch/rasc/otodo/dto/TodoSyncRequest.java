@@ -7,38 +7,38 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class TodoSyncRequest {
-  private final List<Todo> inserted;
 
-  private final List<Todo> updated;
+	private final List<Todo> inserted;
 
-  private final Set<Long> removed;
+	private final List<Todo> updated;
 
-  private final Set<Long> gets;
+	private final Set<Long> removed;
 
-  @JsonCreator
-  public TodoSyncRequest(@JsonProperty("inserted") List<Todo> inserted,
-      @JsonProperty("updated") List<Todo> updated,
-      @JsonProperty("removed") Set<Long> removed, @JsonProperty("gets") Set<Long> gets) {
-    this.inserted = inserted != null ? List.copyOf(inserted) : null;
-    this.updated = updated != null ? List.copyOf(updated) : null;
-    this.removed = removed != null ? Set.copyOf(removed) : null;
-    this.gets = gets != null ? Set.copyOf(gets) : null;
-  }
+	private final Set<Long> gets;
 
-  public List<Todo> getInserted() {
-    return this.inserted;
-  }
+	@JsonCreator
+	public TodoSyncRequest(@JsonProperty("inserted") List<Todo> inserted, @JsonProperty("updated") List<Todo> updated,
+			@JsonProperty("removed") Set<Long> removed, @JsonProperty("gets") Set<Long> gets) {
+		this.inserted = inserted != null ? List.copyOf(inserted) : null;
+		this.updated = updated != null ? List.copyOf(updated) : null;
+		this.removed = removed != null ? Set.copyOf(removed) : null;
+		this.gets = gets != null ? Set.copyOf(gets) : null;
+	}
 
-  public List<Todo> getUpdated() {
-    return this.updated;
-  }
+	public List<Todo> getInserted() {
+		return this.inserted;
+	}
 
-  public Set<Long> getRemoved() {
-    return this.removed;
-  }
+	public List<Todo> getUpdated() {
+		return this.updated;
+	}
 
-  public Set<Long> getGets() {
-    return this.gets;
-  }
+	public Set<Long> getRemoved() {
+		return this.removed;
+	}
+
+	public Set<Long> getGets() {
+		return this.gets;
+	}
 
 }

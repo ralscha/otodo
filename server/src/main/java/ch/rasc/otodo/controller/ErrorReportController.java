@@ -15,16 +15,16 @@ import ch.rasc.otodo.dto.CspReport;
 @RequestMapping("/be")
 class ErrorReportController {
 
-  @PostMapping("/client-error")
-  public void clientError(@RequestBody List<ClientError> errors) {
-    for (ClientError error : errors) {
-      Application.log.error(error.toString());
-    }
-  }
+	@PostMapping("/client-error")
+	public void clientError(@RequestBody List<ClientError> errors) {
+		for (ClientError error : errors) {
+			Application.log.error(error.toString());
+		}
+	}
 
-  @PostMapping("/csp-error")
-  public void cspError(@RequestBody CspReport cspReport) {
-    Application.log.error(cspReport.toString());
-  }
+	@PostMapping("/csp-error")
+	public void cspError(@RequestBody CspReport cspReport) {
+		Application.log.error(cspReport.toString());
+	}
 
 }

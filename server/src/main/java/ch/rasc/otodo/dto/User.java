@@ -10,86 +10,84 @@ import ch.rasc.otodo.db.tables.records.AppUserRecord;
 @JsonInclude(Include.NON_NULL)
 public class User {
 
-  private String id;
+	private String id;
 
-  private String email;
+	private String email;
 
-  private Long lastAccess;
+	private Long lastAccess;
 
-  private String authority;
+	private String authority;
 
-  private boolean enabled;
+	private boolean enabled;
 
-  private boolean expired;
+	private boolean expired;
 
-  private boolean admin;
+	private boolean admin;
 
-  public String getId() {
-    return this.id;
-  }
+	public String getId() {
+		return this.id;
+	}
 
-  public void setId(String id) {
-    this.id = id;
-  }
+	public void setId(String id) {
+		this.id = id;
+	}
 
-  public String getEmail() {
-    return this.email;
-  }
+	public String getEmail() {
+		return this.email;
+	}
 
-  public void setEmail(String email) {
-    this.email = email;
-  }
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-  public Long getLastAccess() {
-    return this.lastAccess;
-  }
+	public Long getLastAccess() {
+		return this.lastAccess;
+	}
 
-  public void setLastAccess(Long lastAccess) {
-    this.lastAccess = lastAccess;
-  }
+	public void setLastAccess(Long lastAccess) {
+		this.lastAccess = lastAccess;
+	}
 
-  public String getAuthority() {
-    return this.authority;
-  }
+	public String getAuthority() {
+		return this.authority;
+	}
 
-  public void setAuthority(String authority) {
-    this.authority = authority;
-  }
+	public void setAuthority(String authority) {
+		this.authority = authority;
+	}
 
-  public boolean isEnabled() {
-    return this.enabled;
-  }
+	public boolean isEnabled() {
+		return this.enabled;
+	}
 
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
-  }
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 
-  public boolean isExpired() {
-    return this.expired;
-  }
+	public boolean isExpired() {
+		return this.expired;
+	}
 
-  public void setExpired(boolean expired) {
-    this.expired = expired;
-  }
+	public void setExpired(boolean expired) {
+		this.expired = expired;
+	}
 
-  public boolean isAdmin() {
-    return this.admin;
-  }
+	public boolean isAdmin() {
+		return this.admin;
+	}
 
-  public void setAdmin(boolean admin) {
-    this.admin = admin;
-  }
+	public void setAdmin(boolean admin) {
+		this.admin = admin;
+	}
 
-  public User(String id, AppUserRecord record) {
-    this.id = id;
-    this.email = record.getEmail();
-    this.lastAccess = record.getLastAccess() != null
-        ? record.getLastAccess().toEpochSecond(ZoneOffset.UTC)
-        : null;
-    this.authority = record.getAuthority();
-    this.enabled = record.getEnabled();
-    this.expired = record.getExpired() != null;
-    this.admin = "ADMIN".equals(record.getAuthority());
-  }
+	public User(String id, AppUserRecord record) {
+		this.id = id;
+		this.email = record.getEmail();
+		this.lastAccess = record.getLastAccess() != null ? record.getLastAccess().toEpochSecond(ZoneOffset.UTC) : null;
+		this.authority = record.getAuthority();
+		this.enabled = record.getEnabled();
+		this.expired = record.getExpired() != null;
+		this.admin = "ADMIN".equals(record.getAuthority());
+	}
 
 }

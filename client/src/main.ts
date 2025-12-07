@@ -1,7 +1,7 @@
 import {HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 import {AuthenticationInterceptor} from './app/authentication-interceptor';
 import {PreloadAllModules, provideRouter, RouteReuseStrategy, withHashLocation, withPreloading} from '@angular/router';
-import {ErrorHandler, importProvidersFrom} from '@angular/core';
+import {ErrorHandler, importProvidersFrom, provideZoneChangeDetection} from '@angular/core';
 import {AppGlobalErrorhandler} from './app/app.global.errorhandler';
 import {bootstrapApplication, BrowserModule} from '@angular/platform-browser';
 import {ServiceWorkerModule} from '@angular/service-worker';
@@ -17,7 +17,7 @@ addIcons(useIcons);
 
 bootstrapApplication(AppComponent, {
   providers: [
-    importProvidersFrom(BrowserModule, ServiceWorkerModule.register('ngsw-worker.js', {enabled: environment.production})),
+    provideZoneChangeDetection(),importProvidersFrom(BrowserModule, ServiceWorkerModule.register('ngsw-worker.js', {enabled: environment.production})),
     provideIonicAngular(),
     {provide: HTTP_INTERCEPTORS, useClass: AuthenticationInterceptor, multi: true},
     {provide: RouteReuseStrategy, useClass: IonicRouteStrategy},

@@ -9,26 +9,26 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class RateLimitInterceptor implements HandlerInterceptor {
 
-  private final Bucket bucket;
+	private final Bucket bucket;
 
-  private final int numTokens;
+	private final int numTokens;
 
-  public RateLimitInterceptor(Bucket bucket, int numTokens) {
-    this.bucket = bucket;
-    this.numTokens = numTokens;
-  }
+	public RateLimitInterceptor(Bucket bucket, int numTokens) {
+		this.bucket = bucket;
+		this.numTokens = numTokens;
+	}
 
-  @Override
-  public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
-      Object handler) throws Exception {
+	@Override
+	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+			throws Exception {
 
-    if (this.bucket.tryConsume(this.numTokens)) {
-      return true;
-    }
+		if (this.bucket.tryConsume(this.numTokens)) {
+			return true;
+		}
 
-    response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value()); // 429
-    return false;
+		response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value()); // 429
+		return false;
 
-  }
+	}
 
 }

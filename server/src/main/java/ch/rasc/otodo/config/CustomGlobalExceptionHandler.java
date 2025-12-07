@@ -13,10 +13,9 @@ import jakarta.validation.ConstraintViolationException;
 @ControllerAdvice
 public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-  @ExceptionHandler(ConstraintViolationException.class)
-  public void constraintViolationException(HttpServletResponse response)
-      throws IOException {
-    response.sendError(HttpStatus.BAD_REQUEST.value());
-  }
+	@ExceptionHandler(ConstraintViolationException.class)
+	public void constraintViolationException(HttpServletResponse response) throws IOException {
+		response.sendError(HttpStatus.BAD_REQUEST.value());
+	}
 
 }
