@@ -57,8 +57,8 @@ export class ConnectionService {
   private readonly lastConnectionState$: Observable<ConnectionState>;
   private readonly onlineCheck$: Observable<ConnectionState>;
   private readonly authenticationToken$: Observable<ConnectionState>;
-  private readonly manualInject: Subject<ConnectionState> = new Subject();
-  private readonly reCheckSubject: Subject<Connection> = new Subject();
+  private readonly manualInject = new Subject<ConnectionState>();
+  private readonly reCheckSubject = new Subject<Connection>();
 
   constructor() {
 

@@ -59,7 +59,7 @@ export class TodoService {
   async requestSync(): Promise<void> {
     this.updateSubject();
 
-    const syncViewObject = await lastValueFrom(this.httpClient.get<{ [key: string]: number }>('/be/syncview'));
+    const syncViewObject = await lastValueFrom(this.httpClient.get<Record<string, number>>('/be/syncview'));
 
     const syncView = new Map<number, number>();
     Object.entries(syncViewObject).forEach(kv => syncView.set(parseInt(kv[0], 10), kv[1]));

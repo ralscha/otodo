@@ -2,7 +2,7 @@ import {Todo} from './todo';
 
 export interface TodoSyncResponse {
   gets: Todo[];
-  updated: { [key: string]: number };
-  inserted: { [key: string]: { id: number, ts: number } };
+  updated: Record<string, number>;
+  inserted: Record<string, { id: number, ts: number }>;
   removed: number[];
 }
