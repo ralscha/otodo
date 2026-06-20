@@ -25,10 +25,10 @@ import com.microsoft.playwright.options.WaitUntilState;
 
 class PlaywrightIT extends AbstractBaseTest {
 
-	private static final DockerImageName NGINX_IMAGE = DockerImageName.parse("nginx:1.29-alpine");
+	private static final DockerImageName NGINX_IMAGE = DockerImageName.parse("nginx:1.30.3-alpine");
 
 	private static final DockerImageName PLAYWRIGHT_IMAGE = DockerImageName
-		.parse("mcr.microsoft.com/playwright:v1.60.0-noble");
+		.parse("mcr.microsoft.com/playwright:v1.61.0-noble");
 
 	@LocalServerPort
 	private int localServerPort;
@@ -177,7 +177,7 @@ class PlaywrightIT extends AbstractBaseTest {
 						.withExposedPorts(3000)
 						.withFileSystemBind(playwrightConfig.toString(), "/tmp/playwright-config.json",
 								BindMode.READ_ONLY)
-						.withCommand("npx", "--yes", "playwright@1.60.0", "launch-server", "--browser", "chromium",
+						.withCommand("npx", "--yes", "playwright@1.61.0", "launch-server", "--browser", "chromium",
 								"--config", "/tmp/playwright-config.json")
 						.waitingFor(Wait.forLogMessage(".*ws://.*", 1))) {
 
