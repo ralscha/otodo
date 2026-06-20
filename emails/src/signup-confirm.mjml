@@ -1,5 +1,7 @@
 <mjml>
    <mj-head>
+     <mj-title>OTodo Registration</mj-title>
+     <mj-preview>Confirm your OTodo registration.</mj-preview>
      <mj-attributes>
        <mj-all font-family="Arial" font-size="20px" />
      </mj-attributes>

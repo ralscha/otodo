@@ -4,6 +4,7 @@ import static ch.rasc.otodo.db.tables.AppSession.APP_SESSION;
 import static ch.rasc.otodo.db.tables.AppUser.APP_USER;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Set;
 
 import org.jooq.DSLContext;
@@ -75,7 +76,7 @@ class AuthController {
 				String sessionId = this.tokenService.createToken();
 
 				this.dsl.transaction(_ -> {
-					LocalDateTime now = LocalDateTime.now();
+					LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
 					String ua = request.getHeader("user-agent");
 					if (ua != null) {
@@ -151,7 +152,7 @@ class AuthController {
 		record.setAuthority("USER");
 		record.setEnabled(false);
 		record.setConfirmationToken(confirmationToken);
-		record.setConfirmationTokenCreated(LocalDateTime.now());
+		record.setConfirmationTokenCreated(LocalDateTime.now(ZoneOffset.UTC));
 		record.setExpired(null);
 		record.setLastAccess(null);
 		record.setPasswordResetToken(null);
@@ -175,8 +176,8 @@ class AuthController {
 			long userId = record.get(APP_USER.ID);
 			LocalDateTime tokenCreated = record.get(APP_USER.CONFIRMATION_TOKEN_CREATED);
 
-			if (tokenCreated != null && tokenCreated
-				.isAfter(LocalDateTime.now().minus(this.appProperties.getSignupNotConfirmedUserMaxAge()))) {
+			if (tokenCreated != null && tokenCreated.isAfter(
+					LocalDateTime.now(ZoneOffset.UTC).minus(this.appProperties.getSignupNotConfirmedUserMaxAge()))) {
 
 				this.dsl.update(APP_USER)
 					.set(APP_USER.ENABLED, true)
@@ -209,7 +210,7 @@ class AuthController {
 
 			this.dsl.update(APP_USER)
 				.set(APP_USER.PASSWORD_RESET_TOKEN, resetToken)
-				.set(APP_USER.PASSWORD_RESET_TOKEN_CREATED, LocalDateTime.now())
+				.set(APP_USER.PASSWORD_RESET_TOKEN_CREATED, LocalDateTime.now(ZoneOffset.UTC))
 				.where(APP_USER.ID.equal(userId))
 				.execute();
 
@@ -245,7 +246,7 @@ class AuthController {
 			LocalDateTime tokenCreated = record.get(APP_USER.PASSWORD_RESET_TOKEN_CREATED);
 
 			if (tokenCreated != null && tokenCreated
-				.isAfter(LocalDateTime.now().minus(this.appProperties.getPasswordResetTokenMaxAge()))) {
+				.isAfter(LocalDateTime.now(ZoneOffset.UTC).minus(this.appProperties.getPasswordResetTokenMaxAge()))) {
 				this.dsl.update(APP_USER)
 					.setNull(APP_USER.PASSWORD_RESET_TOKEN)
 					.setNull(APP_USER.PASSWORD_RESET_TOKEN_CREATED)

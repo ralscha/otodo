@@ -4,5 +4,5 @@ export interface Session {
   lastAccess: number;
   ip: string;
   userAgent: string;
-  ua: { uaBrowser: string, uaOs: string, uaDevice: string };
+  ua: { uaBrowser: string; uaOs: string; uaDevice: string };
 }

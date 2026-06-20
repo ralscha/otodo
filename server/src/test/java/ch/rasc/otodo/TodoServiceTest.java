@@ -36,10 +36,12 @@ class TodoServiceTest extends AbstractBaseTest {
 		AppUserRecord user1 = getUtilService().getUser("user@test.com");
 		AppUserRecord user2 = getUtilService().getUser("another@test.com");
 
-		Todo newTodo1 = new Todo(-1, LocalDateTime.now().toEpochSecond(ZoneOffset.UTC), "subject1", "descr1");
+		Todo newTodo1 = new Todo(-1, LocalDateTime.now(ZoneOffset.UTC).toEpochSecond(ZoneOffset.UTC), "subject1",
+				"descr1");
 		TodoSyncRequest sync1 = new TodoSyncRequest(List.of(newTodo1), null, null, null);
 
-		Todo newTodo2 = new Todo(-1, LocalDateTime.now().toEpochSecond(ZoneOffset.UTC), "subject2", "descr2");
+		Todo newTodo2 = new Todo(-1, LocalDateTime.now(ZoneOffset.UTC).toEpochSecond(ZoneOffset.UTC), "subject2",
+				"descr2");
 		TodoSyncRequest sync2 = new TodoSyncRequest(List.of(newTodo2), null, null, null);
 
 		String token1 = getUtilService().sendLogin(user1.getEmail(), "password", 200, "USER");
@@ -79,8 +81,8 @@ class TodoServiceTest extends AbstractBaseTest {
 
 		// try to update todo from other user
 		Long todo2Id = records2.keySet().iterator().next();
-		Todo updatedTodo = new Todo(todo2Id, LocalDateTime.now().toEpochSecond(ZoneOffset.UTC), "newSubject",
-				"newDescription");
+		Todo updatedTodo = new Todo(todo2Id, LocalDateTime.now(ZoneOffset.UTC).toEpochSecond(ZoneOffset.UTC),
+				"newSubject", "newDescription");
 		TodoSyncRequest updateSync = new TodoSyncRequest(null, List.of(updatedTodo), null, null);
 		response = sendSyncRequest(updateSync, token1);
 		syncResponse = response.getBody();
@@ -102,7 +104,7 @@ class TodoServiceTest extends AbstractBaseTest {
 
 		// insert
 
-		long currentTs = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
+		long currentTs = LocalDateTime.now(ZoneOffset.UTC).toEpochSecond(ZoneOffset.UTC);
 
 		Todo newTodo = new Todo(-1, currentTs, "newSubject", "newDescription");
 		TodoSyncRequest insertSync = new TodoSyncRequest(List.of(newTodo), null, null, null);
@@ -141,7 +143,7 @@ class TodoServiceTest extends AbstractBaseTest {
 		String token = getUtilService().sendLogin(user.getEmail(), "password", 200, "USER");
 
 		// insert
-		long currentTs = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
+		long currentTs = LocalDateTime.now(ZoneOffset.UTC).toEpochSecond(ZoneOffset.UTC);
 
 		Todo newTodo = new Todo(-1, currentTs, "newSubject", "newDescription");
 		TodoSyncRequest insertSync = new TodoSyncRequest(List.of(newTodo), null, null, null);

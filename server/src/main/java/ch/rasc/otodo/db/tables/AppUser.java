@@ -27,10 +27,10 @@ import org.jooq.QueryPart;
 import org.jooq.Record;
 import org.jooq.SQL;
 import org.jooq.Schema;
-import org.jooq.Select;
 import org.jooq.Stringly;
 import org.jooq.Table;
 import org.jooq.TableField;
+import org.jooq.TableLike;
 import org.jooq.TableOptions;
 import org.jooq.UniqueKey;
 import org.jooq.impl.DSL;
@@ -63,7 +63,7 @@ public class AppUser extends TableImpl<AppUserRecord> {
 	 * The column <code>app_user.id</code>.
 	 */
 	public final TableField<AppUserRecord, Long> ID = createField(DSL.name("id"),
-			SQLDataType.BIGINT.nullable(false).identity(true), this, "");
+			SQLDataType.BIGINT.nullable(false).generatedByDefaultAsIdentity(), this, "");
 
 	/**
 	 * The column <code>app_user.email</code>.
@@ -75,13 +75,13 @@ public class AppUser extends TableImpl<AppUserRecord> {
 	 * The column <code>app_user.email_new</code>.
 	 */
 	public final TableField<AppUserRecord, String> EMAIL_NEW = createField(DSL.name("email_new"),
-			SQLDataType.VARCHAR(255).defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.VARCHAR)), this, "");
+			SQLDataType.VARCHAR(255), this, "");
 
 	/**
 	 * The column <code>app_user.password_hash</code>.
 	 */
 	public final TableField<AppUserRecord, String> PASSWORD_HASH = createField(DSL.name("password_hash"),
-			SQLDataType.VARCHAR(255).defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.VARCHAR)), this, "");
+			SQLDataType.VARCHAR(255), this, "");
 
 	/**
 	 * The column <code>app_user.authority</code>.
@@ -99,39 +99,37 @@ public class AppUser extends TableImpl<AppUserRecord> {
 	 * The column <code>app_user.expired</code>.
 	 */
 	public final TableField<AppUserRecord, LocalDateTime> EXPIRED = createField(DSL.name("expired"),
-			SQLDataType.LOCALDATETIME(0).defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.LOCALDATETIME)), this, "");
+			SQLDataType.LOCALDATETIME(6), this, "");
 
 	/**
 	 * The column <code>app_user.last_access</code>.
 	 */
 	public final TableField<AppUserRecord, LocalDateTime> LAST_ACCESS = createField(DSL.name("last_access"),
-			SQLDataType.LOCALDATETIME(0).defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.LOCALDATETIME)), this, "");
+			SQLDataType.LOCALDATETIME(6), this, "");
 
 	/**
 	 * The column <code>app_user.confirmation_token</code>.
 	 */
 	public final TableField<AppUserRecord, String> CONFIRMATION_TOKEN = createField(DSL.name("confirmation_token"),
-			SQLDataType.CHAR(35).defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.CHAR)), this, "");
+			SQLDataType.VARCHAR(35), this, "");
 
 	/**
 	 * The column <code>app_user.confirmation_token_created</code>.
 	 */
 	public final TableField<AppUserRecord, LocalDateTime> CONFIRMATION_TOKEN_CREATED = createField(
-			DSL.name("confirmation_token_created"),
-			SQLDataType.LOCALDATETIME(0).defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.LOCALDATETIME)), this, "");
+			DSL.name("confirmation_token_created"), SQLDataType.LOCALDATETIME(6), this, "");
 
 	/**
 	 * The column <code>app_user.password_reset_token</code>.
 	 */
 	public final TableField<AppUserRecord, String> PASSWORD_RESET_TOKEN = createField(DSL.name("password_reset_token"),
-			SQLDataType.CHAR(35).defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.CHAR)), this, "");
+			SQLDataType.VARCHAR(35), this, "");
 
 	/**
 	 * The column <code>app_user.password_reset_token_created</code>.
 	 */
 	public final TableField<AppUserRecord, LocalDateTime> PASSWORD_RESET_TOKEN_CREATED = createField(
-			DSL.name("password_reset_token_created"),
-			SQLDataType.LOCALDATETIME(0).defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.LOCALDATETIME)), this, "");
+			DSL.name("password_reset_token_created"), SQLDataType.LOCALDATETIME(6), this, "");
 
 	private AppUser(Name alias, Table<AppUserRecord> aliased) {
 		this(alias, aliased, (Field<?>[]) null, null);
@@ -212,12 +210,12 @@ public class AppUser extends TableImpl<AppUserRecord> {
 
 	@Override
 	public UniqueKey<AppUserRecord> getPrimaryKey() {
-		return Keys.KEY_APP_USER_PRIMARY;
+		return Keys.APP_USER_PKEY;
 	}
 
 	@Override
 	public List<UniqueKey<AppUserRecord>> getUniqueKeys() {
-		return Arrays.asList(Keys.KEY_APP_USER_EMAIL);
+		return Arrays.asList(Keys.APP_USER_EMAIL_KEY);
 	}
 
 	private transient AppSessionPath _appSession;
@@ -227,7 +225,7 @@ public class AppUser extends TableImpl<AppUserRecord> {
 	 */
 	public AppSessionPath appSession() {
 		if (_appSession == null)
-			_appSession = new AppSessionPath(this, null, Keys.APP_SESSION_IBFK_1.getInverseKey());
+			_appSession = new AppSessionPath(this, null, Keys.APP_SESSION__FK_APP_SESSION_APP_USER.getInverseKey());
 
 		return _appSession;
 	}
@@ -239,15 +237,16 @@ public class AppUser extends TableImpl<AppUserRecord> {
 	 */
 	public TodoPath todo() {
 		if (_todo == null)
-			_todo = new TodoPath(this, null, Keys.TODO_IBFK_1.getInverseKey());
+			_todo = new TodoPath(this, null, Keys.TODO__FK_TODO_APP_USER.getInverseKey());
 
 		return _todo;
 	}
 
 	@Override
 	public List<Check<AppUserRecord>> getChecks() {
-		return Arrays
-			.asList(Internal.createCheck(this, DSL.name("CONSTRAINT_1"), "`authority` in ('USER','ADMIN')", true));
+		return Arrays.asList(Internal.createCheck(this, DSL.name("app_user_authority_check"),
+				"(((authority)::text = ANY ((ARRAY['USER'::character varying, 'ADMIN'::character varying])::text[])))",
+				true));
 	}
 
 	@Override
@@ -294,7 +293,7 @@ public class AppUser extends TableImpl<AppUserRecord> {
 	 */
 	@Override
 	public AppUser where(Condition condition) {
-		return new AppUser(getQualifiedName(), aliased() ? this : null, null, condition);
+		return new AppUser(getQualifiedName(), aliased() ? this : null, null, Internal.condition(this, condition));
 	}
 
 	/**
@@ -361,7 +360,7 @@ public class AppUser extends TableImpl<AppUserRecord> {
 	 * Create an inline derived table from this table
 	 */
 	@Override
-	public AppUser whereExists(Select<?> select) {
+	public AppUser whereExists(TableLike<?> select) {
 		return where(DSL.exists(select));
 	}
 
@@ -369,7 +368,7 @@ public class AppUser extends TableImpl<AppUserRecord> {
 	 * Create an inline derived table from this table
 	 */
 	@Override
-	public AppUser whereNotExists(Select<?> select) {
+	public AppUser whereNotExists(TableLike<?> select) {
 		return where(DSL.notExists(select));
 	}
 

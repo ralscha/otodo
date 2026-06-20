@@ -8,44 +8,39 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  @if (!signUpSent) {
-    <form #signupForm="ngForm" (ngSubmit)="signupForm.valid && signup(email.value, password.value)"
-          [ngFormOptions]="{updateOn: 'submit'}" novalidate>
+  @if (!signUpSent()) {
+    <form (submit)="signup(); $event.preventDefault()" novalidate>
       <ion-grid>
         <ion-row>
           <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
             <ion-item>
-              <ion-input #email="ngModel" [required]="true" [spellcheck]="false" autocapitalize="off"
-                         autocomplete="username"
-                         email
-                         label="Email" labelPlacement="stacked"
-                         name="email" ngModel type="text" />
+              <ion-input
+                [formField]="signupForm.email"
+                [spellcheck]="false"
+                autocapitalize="off"
+                autocomplete="username"
+                label="Email"
+                labelPlacement="stacked"
+                type="text"
+              />
             </ion-item>
           </ion-col>
         </ion-row>
         <ion-row>
           <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
-            @if (signupForm.submitted && email.invalid) {
+            @if (submitted() && signupForm.email().invalid()) {
               <ion-text color="danger">
-                @if (email.errors?.['required']) {
-                  <p class="ion-padding-start">
-                    Email is required
-                  </p>
+                @if (signupForm.email().getError('required')) {
+                  <p class="ion-padding-start">Email is required</p>
                 }
-                @if (email.errors?.['email']) {
-                  <p class="ion-padding-start">
-                    Not a valid email address
-                  </p>
+                @if (signupForm.email().getError('email')) {
+                  <p class="ion-padding-start">Not a valid email address</p>
                 }
               </ion-text>
             }
-            @if (submitError) {
+            @if (submitError() === 'emailRegistered') {
               <ion-text color="danger">
-                @if (submitError === 'emailRegistered') {
-                  <p class="ion-padding-start">
-                    Email already registered
-                  </p>
-                }
+                <p class="ion-padding-start">Email already registered</p>
               </ion-text>
             }
           </ion-col>
@@ -53,37 +48,31 @@
         <ion-row>
           <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
             <ion-item>
-              <ion-input #password="ngModel" [minlength]="8" [required]="true" autocomplete="new-password"
-                         label="Password"
-                         labelPlacement="stacked"
-                         name="password"
-                         ngModel type="password" />
+              <ion-input
+                [formField]="signupForm.password"
+                autocomplete="new-password"
+                label="Password"
+                labelPlacement="stacked"
+                type="password"
+              />
             </ion-item>
           </ion-col>
         </ion-row>
         <ion-row>
           <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
-            @if (signupForm.submitted && password.invalid) {
+            @if (submitted() && signupForm.password().invalid()) {
               <ion-text color="danger">
-                @if (password.errors?.['required']) {
-                  <p class="ion-padding-start">
-                    Password is required
-                  </p>
+                @if (signupForm.password().getError('required')) {
+                  <p class="ion-padding-start">Password is required</p>
                 }
-                @if (password.errors?.['minlength']) {
-                  <p class="ion-padding-start">
-                    Minimum length is 8 characters
-                  </p>
+                @if (signupForm.password().getError('minLength')) {
+                  <p class="ion-padding-start">Minimum length is 8 characters</p>
                 }
               </ion-text>
             }
-            @if (submitError) {
+            @if (submitError() === 'weakPassword') {
               <ion-text color="danger">
-                @if (submitError === 'weakPassword') {
-                  <p class="ion-padding-start">
-                    Weak password
-                  </p>
-                }
+                <p class="ion-padding-start">Weak password</p>
               </ion-text>
             }
           </ion-col>
@@ -97,7 +86,7 @@
     </form>
   }
 
-  @if (signUpSent) {
+  @if (signUpSent()) {
     <ion-grid class="ion-margin-top">
       <ion-row>
         <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
@@ -111,5 +100,4 @@
       </ion-row>
     </ion-grid>
   }
-
 </ion-content>

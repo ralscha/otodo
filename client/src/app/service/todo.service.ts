@@ -1,18 +1,15 @@
-import {inject, Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {AppDatabase} from '../model/app-database';
-import {BehaviorSubject, lastValueFrom, Observable} from 'rxjs';
-import {Todo} from '../model/todo';
-import {TodoSyncRequest} from '../model/todo-sync-request';
-import {TodoSyncResponse} from '../model/todo-sync-response';
+import { inject, Service } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { AppDatabase } from '../model/app-database';
+import { BehaviorSubject, lastValueFrom, Observable } from 'rxjs';
+import { Todo } from '../model/todo';
+import { TodoSyncRequest } from '../model/todo-sync-request';
+import { TodoSyncResponse } from '../model/todo-sync-response';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class TodoService {
   private readonly httpClient = inject(HttpClient);
   private readonly appDatabase = inject(AppDatabase);
-
 
   private readonly todosSubject = new BehaviorSubject<Todo[]>([]);
   private readonly todos$ = this.todosSubject.asObservable();
@@ -22,7 +19,6 @@ export class TodoService {
       return true;
     }
     return oldTodo !== undefined && oldTodo.description !== newTodo.description;
-
   }
 
   getTodos(): Observable<Todo[]> {
@@ -37,7 +33,7 @@ export class TodoService {
   async delete(todo: Todo): Promise<void> {
     todo.ts = -1;
     await this.appDatabase.todos.put(todo);
-    this.requestSync().catch(e => console.log(e));
+    this.requestSync().catch((e) => console.log(e));
   }
 
   async save(todo: Todo): Promise<void> {
@@ -45,13 +41,13 @@ export class TodoService {
       todo.id = await this.getNextNewId();
       todo.ts = Math.floor(Date.now() / 1000);
       await this.appDatabase.todos.add(todo);
-      this.requestSync().catch(e => console.log(e));
+      this.requestSync().catch((e) => console.log(e));
     } else {
       const oldTodo = await this.appDatabase.todos.get(todo.id);
       if (TodoService.changed(oldTodo, todo)) {
         todo.ts = Math.floor(Date.now() / 1000);
         await this.appDatabase.todos.put(todo);
-        this.requestSync().catch(e => console.log(e));
+        this.requestSync().catch((e) => console.log(e));
       }
     }
   }
@@ -59,21 +55,23 @@ export class TodoService {
   async requestSync(): Promise<void> {
     this.updateSubject();
 
-    const syncViewObject = await lastValueFrom(this.httpClient.get<Record<string, number>>('/be/syncview'));
+    const syncViewObject = await lastValueFrom(
+      this.httpClient.get<Record<string, number>>('/be/syncview'),
+    );
 
     const syncView = new Map<number, number>();
-    Object.entries(syncViewObject).forEach(kv => syncView.set(parseInt(kv[0], 10), kv[1]));
+    Object.entries(syncViewObject).forEach((kv) => syncView.set(parseInt(kv[0], 10), kv[1]));
 
     const syncRequest: TodoSyncRequest = {
       inserted: [],
       updated: [],
       removed: [],
-      gets: []
+      gets: [],
     };
 
     const deleteLocal: number[] = [];
 
-    await this.appDatabase.todos.toCollection().each(todo => {
+    await this.appDatabase.todos.toCollection().each((todo) => {
       if (todo.id) {
         const serverTimestamp = syncView.get(todo.id);
         if (serverTimestamp) {
@@ -107,10 +105,12 @@ export class TodoService {
     }
 
     // if no changes end sync
-    if (syncRequest.inserted.length === 0
-      && syncRequest.updated.length === 0
-      && syncRequest.removed.length === 0
-      && syncRequest.gets.length === 0) {
+    if (
+      syncRequest.inserted.length === 0 &&
+      syncRequest.updated.length === 0 &&
+      syncRequest.removed.length === 0 &&
+      syncRequest.gets.length === 0
+    ) {
       if (deleted) {
         this.updateSubject();
       }
@@ -118,8 +118,9 @@ export class TodoService {
     }
 
     // send sync request to the server
-    const syncResponse = await lastValueFrom(this.httpClient.post<TodoSyncResponse>('/be/sync',
-      syncRequest));
+    const syncResponse = await lastValueFrom(
+      this.httpClient.post<TodoSyncResponse>('/be/sync', syncRequest),
+    );
 
     await this.appDatabase.transaction('rw', this.appDatabase.todos, async () => {
       if (syncResponse.gets && syncResponse.gets.length > 0) {
@@ -139,7 +140,8 @@ export class TodoService {
       }
       if (syncResponse.updated) {
         Object.entries(syncResponse.updated).forEach(
-          async (kv) => await this.appDatabase.todos.update(parseInt(kv[0], 10), {ts: kv[1]}));
+          async (kv) => await this.appDatabase.todos.update(parseInt(kv[0], 10), { ts: kv[1] }),
+        );
       }
       if (syncResponse.removed) {
         syncResponse.removed.forEach(async (id) => await this.appDatabase.todos.delete(id));
@@ -151,9 +153,13 @@ export class TodoService {
   }
 
   private updateSubject(): void {
-    this.appDatabase.todos.where('ts').notEqual(-1).toArray().then(todos => {
-      this.todosSubject.next(todos);
-    });
+    this.appDatabase.todos
+      .where('ts')
+      .notEqual(-1)
+      .toArray()
+      .then((todos) => {
+        this.todosSubject.next(todos);
+      });
   }
 
   private async getNextNewId(): Promise<number> {
@@ -166,8 +172,5 @@ export class TodoService {
       }
     }
     return -1;
-
   }
-
-
 }

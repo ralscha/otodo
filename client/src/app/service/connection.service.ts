@@ -1,20 +1,32 @@
-import {inject, Injectable} from '@angular/core';
-import {defer, from, fromEvent, iif, interval, merge, Observable, of, Subject} from 'rxjs';
-import {catchError, distinctUntilChanged, map, mapTo, shareReplay, switchMap, takeWhile} from 'rxjs/operators';
-import {HttpClient, HttpErrorResponse} from '@angular/common/http';
-import {AppDatabase} from '../model/app-database';
+import { inject, Service } from '@angular/core';
+import { defer, from, fromEvent, iif, interval, merge, Observable, of, Subject } from 'rxjs';
+import {
+  catchError,
+  distinctUntilChanged,
+  map,
+  mapTo,
+  shareReplay,
+  switchMap,
+  takeWhile,
+} from 'rxjs/operators';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { AppDatabase } from '../model/app-database';
 
 enum Connection {
-  OFFLINE = 'OFFLINE', ONLINE = 'ONLINE'
+  OFFLINE = 'OFFLINE',
+  ONLINE = 'ONLINE',
 }
 
 enum Authentication {
-  USER = 'USER', ADMIN = 'ADMIN'
+  USER = 'USER',
+  ADMIN = 'ADMIN',
 }
 
 export class ConnectionState {
-  constructor(private readonly connection: Connection, private readonly authentication: Authentication | null) {
-  }
+  constructor(
+    private readonly connection: Connection,
+    private readonly authentication: Authentication | null,
+  ) {}
 
   isOnlineAuthenticated(): boolean {
     return this.connection === Connection.ONLINE && this.authentication !== null;
@@ -45,13 +57,10 @@ export class ConnectionState {
   }
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class ConnectionService {
   private readonly httpClient = inject(HttpClient);
   private readonly appDatabase = inject(AppDatabase);
-
 
   private readonly connectionState$: Observable<ConnectionState>;
   private readonly lastConnectionState$: Observable<ConnectionState>;
@@ -61,45 +70,49 @@ export class ConnectionService {
   private readonly reCheckSubject = new Subject<Connection>();
 
   constructor() {
+    this.authenticationToken$ = defer(() =>
+      from(this.appDatabase.authenticationToken.limit(1).first()).pipe(
+        map((token) =>
+          token
+            ? new ConnectionState(Connection.OFFLINE, Authentication.USER)
+            : new ConnectionState(Connection.OFFLINE, null),
+        ),
+      ),
+    );
 
-    this.authenticationToken$ = defer(() => from(this.appDatabase.authenticationToken.limit(1).first())
-      .pipe(
-        map(token => token ? new ConnectionState(Connection.OFFLINE, Authentication.USER) :
-          new ConnectionState(Connection.OFFLINE, null))
-      ));
+    this.onlineCheck$ = this.httpClient.get('/be/authenticate', { responseType: 'text' }).pipe(
+      map((response) => this.handleAuthSuccess(response)),
+      catchError((error) => this.handleAuthError(error)),
+    );
 
-    this.onlineCheck$ = this.httpClient.get('/be/authenticate', {responseType: 'text'})
-      .pipe(
-        map(response => this.handleAuthSuccess(response)),
-        catchError(error => this.handleAuthError(error))
-      );
+    this.connectionState$ = merge(
+      defer(() => of(window.navigator.onLine ? Connection.ONLINE : Connection.OFFLINE)),
+      this.reCheckSubject,
+      fromEvent(window, 'offline').pipe(mapTo(Connection.OFFLINE)),
+      fromEvent(window, 'online').pipe(mapTo(Connection.ONLINE)),
+    ).pipe(
+      switchMap((conn) =>
+        iif(() => conn === Connection.OFFLINE, this.authenticationToken$, this.onlineCheck$),
+      ),
+      switchMap((s) => {
+        if (window.navigator.onLine && s.isOffline() && s.isAuthenticated()) {
+          return merge(
+            of(s),
+            interval(60_000).pipe(
+              switchMap(() => this.onlineCheck$),
+              takeWhile((cs) => window.navigator.onLine && cs.isOffline(), true),
+            ),
+          );
+        }
 
-    this.connectionState$ =
-      merge(
-        defer(() => of(window.navigator.onLine ? Connection.ONLINE : Connection.OFFLINE)),
-        this.reCheckSubject,
-        fromEvent(window, 'offline').pipe(mapTo(Connection.OFFLINE)),
-        fromEvent(window, 'online').pipe(mapTo(Connection.ONLINE))
-      )
-        .pipe(
-          switchMap(conn => iif(() => conn === Connection.OFFLINE, this.authenticationToken$, this.onlineCheck$)),
-          switchMap(s => {
-              if (window.navigator.onLine && s.isOffline() && s.isAuthenticated()) {
-                return merge(
-                  of(s),
-                  interval(60_000).pipe(
-                    switchMap(() => this.onlineCheck$),
-                    takeWhile(cs => window.navigator.onLine && cs.isOffline(), true)
-                  ));
-              }
+        return of(s);
+      }),
+      distinctUntilChanged((a, b) => a.isEqualsTo(b)),
+    );
 
-              return of(s);
-            }
-          ),
-          distinctUntilChanged((a, b) => a.isEqualsTo(b))
-        );
-
-    this.lastConnectionState$ = merge(this.manualInject, this.connectionState$).pipe(shareReplay(1));
+    this.lastConnectionState$ = merge(this.manualInject, this.connectionState$).pipe(
+      shareReplay(1),
+    );
   }
 
   connectionState(): Observable<ConnectionState> {
@@ -127,7 +140,7 @@ export class ConnectionService {
 
   reconnect(): void {
     if (window.navigator.onLine) {
-      this.onlineCheck$.subscribe(cs => {
+      this.onlineCheck$.subscribe((cs) => {
         if (cs.isOnline()) {
           this.manualInject.next(cs);
         }

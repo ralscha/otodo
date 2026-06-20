@@ -1,8 +1,15 @@
 services:
   otodo_db:
-    image: mariadb
+    image: postgres:18-alpine
     environment:
-      MARIADB_DATABASE: otodo
-      MARIADB_ROOT_PASSWORD: password
+      POSTGRES_DB: otodo
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
-      - "3306:3306"
+      - "5432:5432"
+
+  inbucket:
+    image: inbucket/inbucket:latest
+    ports:
+      - "2500:2500"
+      - "9000:9000"

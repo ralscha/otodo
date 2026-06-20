@@ -4,7 +4,6 @@
 package ch.rasc.otodo.db.tables;
 
 import ch.rasc.otodo.db.DefaultSchema;
-import ch.rasc.otodo.db.Indexes;
 import ch.rasc.otodo.db.Keys;
 import ch.rasc.otodo.db.tables.AppUser.AppUserPath;
 import ch.rasc.otodo.db.tables.records.TodoRecord;
@@ -18,7 +17,6 @@ import org.jooq.Condition;
 import org.jooq.Field;
 import org.jooq.ForeignKey;
 import org.jooq.Identity;
-import org.jooq.Index;
 import org.jooq.InverseForeignKey;
 import org.jooq.Name;
 import org.jooq.Path;
@@ -27,13 +25,14 @@ import org.jooq.QueryPart;
 import org.jooq.Record;
 import org.jooq.SQL;
 import org.jooq.Schema;
-import org.jooq.Select;
 import org.jooq.Stringly;
 import org.jooq.Table;
 import org.jooq.TableField;
+import org.jooq.TableLike;
 import org.jooq.TableOptions;
 import org.jooq.UniqueKey;
 import org.jooq.impl.DSL;
+import org.jooq.impl.Internal;
 import org.jooq.impl.SQLDataType;
 import org.jooq.impl.TableImpl;
 
@@ -62,7 +61,7 @@ public class Todo extends TableImpl<TodoRecord> {
 	 * The column <code>todo.id</code>.
 	 */
 	public final TableField<TodoRecord, Long> ID = createField(DSL.name("id"),
-			SQLDataType.BIGINT.nullable(false).identity(true), this, "");
+			SQLDataType.BIGINT.nullable(false).generatedByDefaultAsIdentity(), this, "");
 
 	/**
 	 * The column <code>todo.subject</code>.
@@ -74,7 +73,7 @@ public class Todo extends TableImpl<TodoRecord> {
 	 * The column <code>todo.description</code>.
 	 */
 	public final TableField<TodoRecord, String> DESCRIPTION = createField(DSL.name("description"),
-			SQLDataType.VARCHAR(255).defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.VARCHAR)), this, "");
+			SQLDataType.VARCHAR(255), this, "");
 
 	/**
 	 * The column <code>todo.app_user_id</code>.
@@ -86,10 +85,7 @@ public class Todo extends TableImpl<TodoRecord> {
 	 * The column <code>todo.updated</code>.
 	 */
 	public final TableField<TodoRecord, LocalDateTime> UPDATED = createField(DSL.name("updated"),
-			SQLDataType.LOCALDATETIME(0)
-				.nullable(false)
-				.defaultValue(DSL.field(DSL.raw("current_timestamp()"), SQLDataType.LOCALDATETIME)),
-			this, "");
+			SQLDataType.LOCALDATETIME(6).nullable(false), this, "");
 
 	private Todo(Name alias, Table<TodoRecord> aliased) {
 		this(alias, aliased, (Field<?>[]) null, null);
@@ -164,23 +160,18 @@ public class Todo extends TableImpl<TodoRecord> {
 	}
 
 	@Override
-	public List<Index> getIndexes() {
-		return Arrays.asList(Indexes.TODO_APP_USER_ID);
-	}
-
-	@Override
 	public Identity<TodoRecord, Long> getIdentity() {
 		return (Identity<TodoRecord, Long>) super.getIdentity();
 	}
 
 	@Override
 	public UniqueKey<TodoRecord> getPrimaryKey() {
-		return Keys.KEY_TODO_PRIMARY;
+		return Keys.TODO_PKEY;
 	}
 
 	@Override
 	public List<ForeignKey<TodoRecord, ?>> getReferences() {
-		return Arrays.asList(Keys.TODO_IBFK_1);
+		return Arrays.asList(Keys.TODO__FK_TODO_APP_USER);
 	}
 
 	private transient AppUserPath _appUser;
@@ -190,7 +181,7 @@ public class Todo extends TableImpl<TodoRecord> {
 	 */
 	public AppUserPath appUser() {
 		if (_appUser == null)
-			_appUser = new AppUserPath(this, Keys.TODO_IBFK_1, null);
+			_appUser = new AppUserPath(this, Keys.TODO__FK_TODO_APP_USER, null);
 
 		return _appUser;
 	}
@@ -239,7 +230,7 @@ public class Todo extends TableImpl<TodoRecord> {
 	 */
 	@Override
 	public Todo where(Condition condition) {
-		return new Todo(getQualifiedName(), aliased() ? this : null, null, condition);
+		return new Todo(getQualifiedName(), aliased() ? this : null, null, Internal.condition(this, condition));
 	}
 
 	/**
@@ -306,7 +297,7 @@ public class Todo extends TableImpl<TodoRecord> {
 	 * Create an inline derived table from this table
 	 */
 	@Override
-	public Todo whereExists(Select<?> select) {
+	public Todo whereExists(TableLike<?> select) {
 		return where(DSL.exists(select));
 	}
 
@@ -314,7 +305,7 @@ public class Todo extends TableImpl<TodoRecord> {
 	 * Create an inline derived table from this table
 	 */
 	@Override
-	public Todo whereNotExists(Select<?> select) {
+	public Todo whereNotExists(TableLike<?> select) {
 		return where(DSL.notExists(select));
 	}
 

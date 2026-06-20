@@ -1,10 +1,11 @@
-import {Component, inject, OnInit} from '@angular/core';
-import {Session} from '../../model/session';
-import {ProfileService} from '../../service/profile.service';
-import {UAParser} from 'ua-parser-js'
-import {MessagesService} from '../../service/messages.service';
-import {DatePipe} from '@angular/common';
-import {RelativeTimePipe} from '../../pipe/relative-time.pipe';
+import { Component, computed, inject } from '@angular/core';
+import { httpResource } from '@angular/common/http';
+import { Session } from '../../model/session';
+import { ProfileService } from '../../service/profile.service';
+import { UAParser } from 'ua-parser-js';
+import { MessagesService } from '../../service/messages.service';
+import { DatePipe } from '@angular/common';
+import { RelativeTimePipe } from '../../pipe/relative-time.pipe';
 import {
   IonBackButton,
   IonButton,
@@ -20,45 +21,66 @@ import {
   IonLabel,
   IonRow,
   IonTitle,
-  IonToolbar
-} from "@ionic/angular/standalone";
+  IonToolbar,
+} from '@ionic/angular/standalone';
+
+type SessionResponse = Omit<Session, 'ua'>;
 
 @Component({
   selector: 'app-sessions',
   templateUrl: './sessions.page.html',
   styleUrls: ['./sessions.page.scss'],
-  imports: [DatePipe, RelativeTimePipe, IonHeader, IonToolbar, IonTitle, IonContent, IonRow, IonCol, IonItem, IonButton, IonCard, IonCardHeader, IonCardTitle, IonLabel, IonIcon, IonBackButton, IonButtons]
+  imports: [
+    DatePipe,
+    RelativeTimePipe,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonRow,
+    IonCol,
+    IonItem,
+    IonButton,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonLabel,
+    IonIcon,
+    IonBackButton,
+    IonButtons,
+  ],
 })
-export class SessionsPage implements OnInit {
-  sessions: Session[] = [];
+export class SessionsPage {
+  private readonly sessionsResource = httpResource<SessionResponse[]>(() => '/be/sessions', {
+    defaultValue: [],
+  });
   private readonly profileService = inject(ProfileService);
   private readonly messagesService = inject(MessagesService);
 
-  private static parseUA(userAgent: string): { uaBrowser: string, uaOs: string, uaDevice: string } {
-    const ua = new UAParser(userAgent).getResult();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result: any = {};
-    result.uaBrowser = `${ua.browser.name} ${ua.browser.major}`;
-    result.uaOs = `${ua.os.name} ${ua.os.version}`;
-    if (ua.device.vendor) {
-      result.uaDevice = `${ua.device.vendor}${ua.device.type ? `(${ua.device.type})` : ''}`;
-    } else {
-      result.uaDevice = '';
-    }
-    return result;
-  }
+  sessions = computed(() =>
+    this.sessionsResource.value().map((session) => ({
+      ...session,
+      ua: SessionsPage.parseUA(session.userAgent),
+    })),
+  );
 
-  ngOnInit(): void {
-    this.profileService.fetchSessions().subscribe(response => {
-      this.sessions = response;
-      this.sessions.forEach(session => session.ua = SessionsPage.parseUA(session.userAgent));
-    });
+  private static parseUA(userAgent: string): { uaBrowser: string; uaOs: string; uaDevice: string } {
+    const ua = new UAParser(userAgent).getResult();
+    return {
+      uaBrowser: `${ua.browser.name} ${ua.browser.major}`,
+      uaOs: `${ua.os.name} ${ua.os.version}`,
+      uaDevice: ua.device.vendor
+        ? `${ua.device.vendor}${ua.device.type ? `(${ua.device.type})` : ''}`
+        : '',
+    };
   }
 
   deleteSession(session: Session): void {
-    this.profileService.deleteSession(session.id).subscribe(() => {
-      this.sessions = this.sessions.filter(s => s.id !== session.id);
-    }, () => this.messagesService.showErrorToast());
+    this.profileService.deleteSession(session.id).subscribe(
+      () => {
+        this.sessionsResource.update((sessions) => sessions.filter((s) => s.id !== session.id));
+      },
+      () => this.messagesService.showErrorToast(),
+    );
   }
-
 }

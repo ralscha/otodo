@@ -3,15 +3,12 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/profile" />
     </ion-buttons>
-    <ion-title>
-      Sessions
-    </ion-title>
+    <ion-title> Sessions </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-
-  @for (session of sessions; track session) {
+  @for (session of sessions(); track session) {
     <ion-card>
       <ion-card-header>
         <ion-card-title>{{ session.ip }}</ion-card-title>
@@ -24,7 +21,7 @@
             <h1>{{ session.ua.uaDevice }}</h1>
           }
           <p class="ion-padding-top">Last Access:</p>
-          <h2>{{ session.lastAccess * 1000 | date:'medium' }}</h2>
+          <h2>{{ session.lastAccess * 1000 | date: 'medium' }}</h2>
           <p>{{ session.lastAccess * 1000 | relativeTime }}</p>
         </ion-label>
       </ion-item>
@@ -40,6 +37,4 @@
       }
     </ion-card>
   }
-
-
 </ion-content>

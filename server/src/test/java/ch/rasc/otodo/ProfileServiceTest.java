@@ -19,12 +19,11 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.icegreen.greenmail.store.FolderException;
 
 import ch.rasc.otodo.config.security.AuthHeaderFilter;
@@ -41,14 +40,12 @@ class ProfileServiceTest extends AbstractEmailTest {
 		headers.set(AuthHeaderFilter.HEADER_NAME, authToken);
 		var request = new HttpEntity<>(headers);
 
-		ResponseEntity<String> response = getRestTemplate().exchange("/be/sessions", HttpMethod.GET, request,
-				String.class);
+		ResponseEntity<List<TestSession>> response = getRestTemplate().exchange("/be/sessions", HttpMethod.GET, request,
+				new ParameterizedTypeReference<List<TestSession>>() {
+				});
 
 		assertThat(response.getStatusCode().value()).isEqualTo(200);
-		ObjectMapper om = new ObjectMapper();
-		List<TestSession> sessions = om.readValue(response.getBody(), new TypeReference<List<TestSession>>() {
-			// nothing_here
-		});
+		List<TestSession> sessions = response.getBody();
 		assertThat(sessions).hasSize(1);
 
 		AppSessionRecord record = getDsl().selectFrom(APP_SESSION).fetchOne();
@@ -67,13 +64,13 @@ class ProfileServiceTest extends AbstractEmailTest {
 		headers.set(AuthHeaderFilter.HEADER_NAME, authToken);
 		request = new HttpEntity<>(headers);
 
-		response = getRestTemplate().exchange("/be/sessions", HttpMethod.GET, request, String.class);
+		response = getRestTemplate().exchange("/be/sessions", HttpMethod.GET, request,
+				new ParameterizedTypeReference<List<TestSession>>() {
+				});
 
 		assertThat(response.getStatusCode().value()).isEqualTo(200);
 
-		sessions = om.readValue(response.getBody(), new TypeReference<List<TestSession>>() {
-			// nothing_here
-		});
+		sessions = response.getBody();
 		assertThat(sessions).hasSize(2);
 		int noOfLoggedInSessions = 0;
 		for (TestSession sess : sessions) {
@@ -98,14 +95,12 @@ class ProfileServiceTest extends AbstractEmailTest {
 		headers.set(AuthHeaderFilter.HEADER_NAME, authToken);
 		var request = new HttpEntity<>(headers);
 
-		ResponseEntity<String> response = getRestTemplate().exchange("/be/sessions", HttpMethod.GET, request,
-				String.class);
+		ResponseEntity<List<TestSession>> response = getRestTemplate().exchange("/be/sessions", HttpMethod.GET, request,
+				new ParameterizedTypeReference<List<TestSession>>() {
+				});
 
 		assertThat(response.getStatusCode().value()).isEqualTo(200);
-		ObjectMapper om = new ObjectMapper();
-		List<TestSession> sessions = om.readValue(response.getBody(), new TypeReference<List<TestSession>>() {
-			// nothing_here
-		});
+		List<TestSession> sessions = response.getBody();
 		assertThat(sessions).hasSize(1);
 		TestSession session = sessions.get(0);
 
@@ -194,7 +189,7 @@ class ProfileServiceTest extends AbstractEmailTest {
 		assertThat(response.getStatusCode().value()).isEqualTo(200);
 		assertThat(response.getBody()).isNull();
 
-		authToken = getUtilService().sendLogin("admin@test.com", "a very secret password", 200, "ADMIN");
+		token = getUtilService().sendLogin("admin@test.com", "a very secret password", 200, "ADMIN");
 		getUtilService().sendLogout(token, 200);
 		getUtilService().sendLogin("admin@test.com", newPassword, 401, null);
 

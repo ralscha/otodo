@@ -1,53 +1,53 @@
-import {inject, Injectable} from '@angular/core';
-import {from, Observable, of} from 'rxjs';
-import {HttpClient, HttpErrorResponse, HttpParams, HttpResponse} from '@angular/common/http';
-import {catchError, filter, map, switchMap, tap} from 'rxjs/operators';
-import {AppDatabase} from '../model/app-database';
-import {ConnectionService, ConnectionState} from './connection.service';
+import { inject, Service } from '@angular/core';
+import { from, Observable, of } from 'rxjs';
+import { HttpClient, HttpErrorResponse, HttpParams, HttpResponse } from '@angular/common/http';
+import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
+import { AppDatabase } from '../model/app-database';
+import { ConnectionService, ConnectionState } from './connection.service';
 
-
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class AuthService {
   private readonly httpClient = inject(HttpClient);
   private readonly appDatabase = inject(AppDatabase);
   private readonly connectionService = inject(ConnectionService);
 
-
   constructor() {
-
-    this.connectionService.connectionState()
+    this.connectionService
+      .connectionState()
       .pipe(
-        filter(cs => cs.isOnlineAuthenticated()),
+        filter((cs) => cs.isOnlineAuthenticated()),
         switchMap(() => from(this.appDatabase.invalidAuthenticationTokens.toArray())),
-        filter(tokens => tokens.length > 0),
-        switchMap(tokens => this.httpClient.post<void>('/be/invalidate-sessions', tokens))
+        filter((tokens) => tokens.length > 0),
+        switchMap((tokens) => this.httpClient.post<void>('/be/invalidate-sessions', tokens)),
       )
-      .subscribe(() => this.appDatabase.invalidAuthenticationTokens.clear(), error => console.log(error));
+      .subscribe(
+        () => this.appDatabase.invalidAuthenticationTokens.clear(),
+        (error) => console.log(error),
+      );
   }
 
   login(username: string, password: string): Observable<ConnectionState> {
     const body = new HttpParams().set('username', username).set('password', password);
 
-    return this.httpClient.post('/be/login', body, {
-      responseType: 'text',
-      observe: 'response'
-    }).pipe(
-      switchMap(response => this.handleLoginResponse(response)),
-      catchError(error => of(this.handleLoginError(error)))
-    );
+    return this.httpClient
+      .post('/be/login', body, {
+        responseType: 'text',
+        observe: 'response',
+      })
+      .pipe(
+        switchMap((response) => this.handleLoginResponse(response)),
+        catchError((error) => of(this.handleLoginError(error))),
+      );
   }
 
   logout(): Observable<void> {
-    return this.httpClient.get<void>('/be/logout')
-      .pipe(
-        tap(async () => {
-          await this.deleteTokens();
-          this.connectionService.logout(true);
-        }),
-        catchError(error => from(this.handleLogoutError(error)))
-      );
+    return this.httpClient.get<void>('/be/logout').pipe(
+      tap(async () => {
+        await this.deleteTokens();
+        this.connectionService.logout(true);
+      }),
+      catchError((error) => from(this.handleLogoutError(error))),
+    );
   }
 
   signup(email: string, password: string): Observable<'EMAIL_REGISTERED' | 'WEAK_PASSWORD' | null> {
@@ -56,20 +56,21 @@ export class AuthService {
   }
 
   confirmSignup(token: string): Observable<boolean> {
-    return this.httpClient.post('/be/confirm-signup', token, {responseType: 'text'})
-      .pipe(
-        map(response => response === 'true')
-      );
+    return this.httpClient
+      .post('/be/confirm-signup', token, { responseType: 'text' })
+      .pipe(map((response) => response === 'true'));
   }
 
   resetPasswordRequest(email: string): Observable<boolean> {
-    return this.httpClient.post('/be/reset-password-request', email, {responseType: 'text'})
-      .pipe(
-        map(response => response === 'true')
-      );
+    return this.httpClient
+      .post('/be/reset-password-request', email, { responseType: 'text' })
+      .pipe(map((response) => response === 'true'));
   }
 
-  resetPassword(resetToken: string, password: string): Observable<'INVALID' | 'WEAK_PASSWORD' | null> {
+  resetPassword(
+    resetToken: string,
+    password: string,
+  ): Observable<'INVALID' | 'WEAK_PASSWORD' | null> {
     const body = new HttpParams().set('resetToken', resetToken).set('password', password);
     return this.httpClient.post<'INVALID' | 'WEAK_PASSWORD' | null>('/be/reset-password', body);
   }
@@ -125,6 +126,4 @@ export class AuthService {
 
     return Promise.resolve();
   }
-
-
 }

@@ -1,14 +1,14 @@
-import {Routes} from '@angular/router';
+import { Routes } from '@angular/router';
 
-import {EditPage} from './edit.page';
+import { EditPage } from './edit.page';
 
 export const routes: Routes = [
   {
     path: ':id',
-    component: EditPage
+    component: EditPage,
   },
   {
     path: '',
-    component: EditPage
-  }
+    component: EditPage,
+  },
 ];

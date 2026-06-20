@@ -17,24 +17,11 @@
               "base": "dist/app"
             },
             "index": "src/index.html",
-            "polyfills": [
-              "src/polyfills.ts"
-            ],
+            "polyfills": ["src/polyfills.ts"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
-            "assets": [
-              "src/assets",
-              {
-                "glob": "pwacompat.min.js",
-                "input": "node_modules/pwacompat/",
-                "output": "./pwacompat-2-0-17"
-              },
-              "src/manifest.json"
-            ],
-            "styles": [
-              "src/styles.scss",
-              "src/variables.scss"
-            ],
+            "assets": ["src/assets", "src/manifest.json"],
+            "styles": ["src/styles.scss", "src/variables.scss"],
             "scripts": [],
             "browser": "src/main.ts"
           },
@@ -88,19 +75,14 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": [
-              "src/**/*.ts",
-              "src/**/*.html"
-            ]
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         }
       }
     }
   },
   "cli": {
-    "schematicCollections": [
-      "@ionic/angular-toolkit"
-    ]
+    "schematicCollections": ["@ionic/angular-toolkit"]
   },
   "schematics": {
     "@ionic/angular-toolkit:component": {

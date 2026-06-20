@@ -5,6 +5,7 @@ import static ch.rasc.otodo.db.tables.AppUser.APP_USER;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -71,7 +72,7 @@ public class SessionCacheService {
 				appUserIds.add(id.getAppUserId());
 			}
 
-			LocalDateTime now = LocalDateTime.now();
+			LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
 			this.dsl.update(APP_SESSION)
 				.set(APP_SESSION.LAST_ACCESS, now)
@@ -95,7 +96,7 @@ public class SessionCacheService {
 				if (sessionRecord != null) {
 					LocalDateTime lastAccess = sessionRecord.get(APP_SESSION.LAST_ACCESS);
 
-					if (lastAccess.plus(this.inactiveSessionMaxAge).isAfter(LocalDateTime.now())) {
+					if (lastAccess.plus(this.inactiveSessionMaxAge).isAfter(LocalDateTime.now(ZoneOffset.UTC))) {
 						readFromDb.set(true);
 						return new Ids(sessionRecord.get(APP_SESSION.APP_USER_ID), sessionRecord.get(APP_SESSION.ID));
 					}
@@ -167,10 +168,9 @@ public class SessionCacheService {
 			if (this == obj) {
 				return true;
 			}
-			if (obj == null || getClass() != obj.getClass()) {
+			if (!(obj instanceof Ids other)) {
 				return false;
 			}
-			Ids other = (Ids) obj;
 			if (!Objects.equals(this.appSessionId, other.appSessionId)) {
 				return false;
 			}

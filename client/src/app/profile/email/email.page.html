@@ -3,62 +3,55 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/profile" />
     </ion-buttons>
-    <ion-title>
-      Change Email
-    </ion-title>
+    <ion-title> Change Email </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  @if (!changeSent) {
-    <form #changeForm="ngForm" (ngSubmit)="changeForm.valid && changeEmail(newEmail.value, password.value)"
-          [ngFormOptions]="{updateOn: 'submit'}" novalidate>
+  @if (!changeSent()) {
+    <form (submit)="changeEmail(); $event.preventDefault()" novalidate>
       <ion-grid>
         <ion-row>
           <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
             <ion-text>
+              <p>An email change is not going to be active immediately.</p>
               <p>
-                An email change is not going to be active immediately.
+                After you've sent the change request we will send you a confirmation email to the
+                new address.
               </p>
-              <p>After you've sent the change request we will send you
-                a confirmation email to the new address.</p>
             </ion-text>
           </ion-col>
         </ion-row>
         <ion-row>
           <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
             <ion-item>
-              <ion-input #password="ngModel" [minlength]="8" [required]="true"
-                         [spellcheck]="false" autocapitalize="off" autocomplete="current-password"
-                         label="Password"
-                         labelPlacement="stacked" name="password"
-                         ngModel type="password" />
+              <ion-input
+                [formField]="emailForm.password"
+                [spellcheck]="false"
+                autocapitalize="off"
+                autocomplete="current-password"
+                label="Password"
+                labelPlacement="stacked"
+                type="password"
+              />
             </ion-item>
           </ion-col>
         </ion-row>
         <ion-row>
           <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
-            @if (changeForm.submitted && password.invalid) {
+            @if (submitted() && emailForm.password().invalid()) {
               <ion-text color="danger">
-                @if (password.errors?.['required']) {
-                  <p class="ion-padding-start">
-                    Password is required
-                  </p>
+                @if (emailForm.password().getError('required')) {
+                  <p class="ion-padding-start">Password is required</p>
                 }
-                @if (password.errors?.['minlength']) {
-                  <p class="ion-padding-start">
-                    Minimum length is 8 characters
-                  </p>
+                @if (emailForm.password().getError('minLength')) {
+                  <p class="ion-padding-start">Minimum length is 8 characters</p>
                 }
               </ion-text>
             }
-            @if (submitError) {
+            @if (submitError() === 'passwordInvalid') {
               <ion-text color="danger">
-                @if (submitError === 'passwordInvalid') {
-                  <p class="ion-padding-start">
-                    Password is invalid
-                  </p>
-                }
+                <p class="ion-padding-start">Password is invalid</p>
               </ion-text>
             }
           </ion-col>
@@ -66,42 +59,38 @@
         <ion-row>
           <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
             <ion-item>
-              <ion-input #newEmail="ngModel" [required]="true" [spellcheck]="false" autocapitalize="off"
-                         autocomplete="username"
-                         email label="New Email"
-                         labelPlacement="stacked"
-                         name="newEmail" ngModel type="email" />
+              <ion-input
+                [formField]="emailForm.newEmail"
+                [spellcheck]="false"
+                autocapitalize="off"
+                autocomplete="username"
+                label="New Email"
+                labelPlacement="stacked"
+                type="email"
+              />
             </ion-item>
           </ion-col>
         </ion-row>
         <ion-row>
           <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
-            @if (changeForm.submitted && newEmail.invalid) {
+            @if (submitted() && emailForm.newEmail().invalid()) {
               <ion-text color="danger">
-                @if (newEmail.errors?.['required']) {
-                  <p class="ion-padding-start">
-                    Email is required
-                  </p>
+                @if (emailForm.newEmail().getError('required')) {
+                  <p class="ion-padding-start">Email is required</p>
                 }
-                @if (newEmail.errors?.['email']) {
-                  <p class="ion-padding-start">
-                    Not a valid email address
-                  </p>
+                @if (emailForm.newEmail().getError('email')) {
+                  <p class="ion-padding-start">Not a valid email address</p>
                 }
               </ion-text>
             }
-            @if (submitError) {
+            @if (submitError() === 'emailRegistered') {
               <ion-text color="danger">
-                @if (submitError === 'emailRegistered') {
-                  <p class="ion-padding-start">
-                    Email already registered
-                  </p>
-                }
-                @if (submitError === 'noChange') {
-                  <p class="ion-padding-start">
-                    New and old email address are the same
-                  </p>
-                }
+                <p class="ion-padding-start">Email already registered</p>
+              </ion-text>
+            }
+            @if (submitError() === 'noChange') {
+              <ion-text color="danger">
+                <p class="ion-padding-start">New and old email address are the same</p>
               </ion-text>
             }
           </ion-col>
@@ -115,7 +104,7 @@
     </form>
   }
 
-  @if (changeSent) {
+  @if (changeSent()) {
     <ion-text class="ion-margin-top">
       <p>We successfully received your email change request.</p>
       <p>Before we activate the change we need to verify your new email address.</p>

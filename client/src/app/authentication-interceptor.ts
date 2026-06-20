@@ -1,65 +1,60 @@
-import {inject, Injectable} from '@angular/core';
-import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
-import {from, Observable, throwError} from 'rxjs';
-import {AppDatabase} from './model/app-database';
-import {catchError, mergeMap} from 'rxjs/operators';
-import {Router} from '@angular/router';
+import { inject } from '@angular/core';
+import { HttpInterceptorFn } from '@angular/common/http';
+import { from, throwError } from 'rxjs';
+import { catchError, mergeMap } from 'rxjs/operators';
+import { Router } from '@angular/router';
+import { AppDatabase } from './model/app-database';
 
-@Injectable()
-export class AuthenticationInterceptor implements HttpInterceptor {
-  private readonly appDatabase = inject(AppDatabase);
-  private readonly router = inject(Router);
+const ignoreURLs = new Set([
+  '/be/login',
+  '/be/signup',
+  '/be/confirm-signup',
+  '/be/reset-password-request',
+  '/be/reset-password',
+  '/be/confirm-email-change',
+]);
 
-
-  private readonly ignoreURLs = new Set(['/be/login', '/be/signup', '/be/confirm-signup',
-    '/be/reset-password-request', '/be/reset-password', '/be/confirm-email-change']);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (this.ignoreURLs.has(request.url)) {
-      return next.handle(request);
-    }
-
-    const tokenGetter = async () => {
-      const token = sessionStorage.getItem('token');
-      if (token) {
-        return token;
-      }
-      return this.appDatabase.authenticationToken.limit(1).first();
-    };
-
-    // @ts-ignore
-    return from(tokenGetter()).pipe(mergeMap(
-      (token: string) => {
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let nextHandle: Observable<HttpEvent<any>>;
-
-        if (token) {
-          const clonedRequest = request.clone({
-            setHeaders: {
-              'X-authentication': token
-            }
-          });
-
-          nextHandle = next.handle(clonedRequest);
-        } else {
-          nextHandle = next.handle(request);
-        }
-
-        if (request.url.endsWith('/authenticate')) {
-          return nextHandle;
-        }
-
-        return nextHandle.pipe(catchError(err => {
-          if (err.status === 401) {
-            this.appDatabase.authenticationToken.clear();
-            this.router.navigate(['/login']);
-          }
-          return throwError((err.error && err.error.message) || err.statusText);
-        }));
-      }
-    ));
-
+export const authenticationInterceptor: HttpInterceptorFn = (request, next) => {
+  if (ignoreURLs.has(request.url)) {
+    return next(request);
   }
-}
+
+  const appDatabase = inject(AppDatabase);
+  const router = inject(Router);
+
+  const tokenGetter = async () => {
+    const token = sessionStorage.getItem('token');
+    if (token) {
+      return token;
+    }
+    return appDatabase.authenticationToken.limit(1).first();
+  };
+
+  return from(tokenGetter()).pipe(
+    mergeMap((token: string | undefined) => {
+      const authenticatedRequest = token
+        ? request.clone({
+            setHeaders: {
+              'X-authentication': token,
+            },
+          })
+        : request;
+
+      const response$ = next(authenticatedRequest);
+
+      if (request.url.endsWith('/authenticate')) {
+        return response$;
+      }
+
+      return response$.pipe(
+        catchError((err) => {
+          if (err.status === 401) {
+            appDatabase.authenticationToken.clear();
+            router.navigate(['/login']);
+          }
+          return throwError(() => (err.error && err.error.message) || err.statusText);
+        }),
+      );
+    }),
+  );
+};

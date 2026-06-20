@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.jooq.Catalog;
 import org.jooq.Table;
+import org.jooq.impl.DSL;
 import org.jooq.impl.SchemaImpl;
 
 /**
@@ -46,7 +47,7 @@ public class DefaultSchema extends SchemaImpl {
 	 * No further instances allowed
 	 */
 	private DefaultSchema() {
-		super("", null);
+		super(DSL.name(""), null, DSL.comment(""));
 	}
 
 	@Override

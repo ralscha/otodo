@@ -1,1 +1,1 @@
-export {add, trash} from "ionicons/icons";
+export { add, trash } from 'ionicons/icons';

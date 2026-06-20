@@ -3,35 +3,27 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/todos" />
     </ion-buttons>
-    <ion-title>
-      Edit Todo
-    </ion-title>
+    <ion-title> Edit Todo </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-
-  <form #todoForm="ngForm" (ngSubmit)="todoForm.valid && save(todoForm)"
-        [ngFormOptions]="{updateOn: 'submit'}" novalidate>
-
-    @if (selectedTodo) {
+  <form (submit)="save(); $event.preventDefault()" novalidate>
+    @if (selectedTodo()) {
       <ion-grid>
         <ion-row>
           <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
             <ion-item>
-              <ion-input #subject="ngModel" [ngModel]="selectedTodo.subject" [required]="true" label="Subject"
-                         labelPlacement="stacked" name="subject" />
+              <ion-input [formField]="todoForm.subject" label="Subject" labelPlacement="stacked" />
             </ion-item>
           </ion-col>
         </ion-row>
         <ion-row>
           <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
-            @if (todoForm.submitted && subject.invalid) {
+            @if (submitted() && todoForm.subject().invalid()) {
               <ion-text color="danger">
-                @if (subject.errors?.['required']) {
-                  <p class="ion-padding-start">
-                    Subject is required
-                  </p>
+                @if (todoForm.subject().getError('required')) {
+                  <p class="ion-padding-start">Subject is required</p>
                 }
               </ion-text>
             }
@@ -40,9 +32,12 @@
         <ion-row>
           <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
             <ion-item>
-              <ion-textarea #description="ngModel" [ngModel]="selectedTodo.description" [rows]="3"
-                            label="Description" labelPlacement="stacked"
-                            name="description" />
+              <ion-textarea
+                [formField]="todoForm.description"
+                [rows]="3"
+                label="Description"
+                labelPlacement="stacked"
+              />
             </ion-item>
           </ion-col>
         </ion-row>
@@ -53,17 +48,13 @@
         </ion-row>
       </ion-grid>
     }
-
   </form>
 
-
-  @if (selectedTodo?.id) {
+  @if (selectedTodo()?.id) {
     <ion-fab horizontal="start" slot="fixed" vertical="bottom">
       <ion-fab-button (click)="deleteTodo()">
         <ion-icon name="trash" />
       </ion-fab-button>
     </ion-fab>
   }
-
-
 </ion-content>

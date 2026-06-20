@@ -4,7 +4,6 @@
 package ch.rasc.otodo.db.tables;
 
 import ch.rasc.otodo.db.DefaultSchema;
-import ch.rasc.otodo.db.Indexes;
 import ch.rasc.otodo.db.Keys;
 import ch.rasc.otodo.db.tables.AppUser.AppUserPath;
 import ch.rasc.otodo.db.tables.records.AppSessionRecord;
@@ -17,7 +16,6 @@ import java.util.List;
 import org.jooq.Condition;
 import org.jooq.Field;
 import org.jooq.ForeignKey;
-import org.jooq.Index;
 import org.jooq.InverseForeignKey;
 import org.jooq.Name;
 import org.jooq.Path;
@@ -26,13 +24,14 @@ import org.jooq.QueryPart;
 import org.jooq.Record;
 import org.jooq.SQL;
 import org.jooq.Schema;
-import org.jooq.Select;
 import org.jooq.Stringly;
 import org.jooq.Table;
 import org.jooq.TableField;
+import org.jooq.TableLike;
 import org.jooq.TableOptions;
 import org.jooq.UniqueKey;
 import org.jooq.impl.DSL;
+import org.jooq.impl.Internal;
 import org.jooq.impl.SQLDataType;
 import org.jooq.impl.TableImpl;
 
@@ -61,7 +60,7 @@ public class AppSession extends TableImpl<AppSessionRecord> {
 	 * The column <code>app_session.id</code>.
 	 */
 	public final TableField<AppSessionRecord, String> ID = createField(DSL.name("id"),
-			SQLDataType.CHAR(35).nullable(false), this, "");
+			SQLDataType.VARCHAR(35).nullable(false), this, "");
 
 	/**
 	 * The column <code>app_session.app_user_id</code>.
@@ -73,22 +72,22 @@ public class AppSession extends TableImpl<AppSessionRecord> {
 	 * The column <code>app_session.last_access</code>.
 	 */
 	public final TableField<AppSessionRecord, LocalDateTime> LAST_ACCESS = createField(DSL.name("last_access"),
-			SQLDataType.LOCALDATETIME(0)
+			SQLDataType.LOCALDATETIME(6)
 				.nullable(false)
-				.defaultValue(DSL.field(DSL.raw("current_timestamp()"), SQLDataType.LOCALDATETIME)),
+				.defaultValue(DSL.field(DSL.raw("CURRENT_TIMESTAMP"), SQLDataType.LOCALDATETIME)),
 			this, "");
 
 	/**
 	 * The column <code>app_session.ip</code>.
 	 */
-	public final TableField<AppSessionRecord, String> IP = createField(DSL.name("ip"),
-			SQLDataType.VARCHAR(39).defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.VARCHAR)), this, "");
+	public final TableField<AppSessionRecord, String> IP = createField(DSL.name("ip"), SQLDataType.VARCHAR(39), this,
+			"");
 
 	/**
 	 * The column <code>app_session.user_agent</code>.
 	 */
 	public final TableField<AppSessionRecord, String> USER_AGENT = createField(DSL.name("user_agent"),
-			SQLDataType.VARCHAR(255).defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.VARCHAR)), this, "");
+			SQLDataType.VARCHAR(255), this, "");
 
 	private AppSession(Name alias, Table<AppSessionRecord> aliased) {
 		this(alias, aliased, (Field<?>[]) null, null);
@@ -163,18 +162,13 @@ public class AppSession extends TableImpl<AppSessionRecord> {
 	}
 
 	@Override
-	public List<Index> getIndexes() {
-		return Arrays.asList(Indexes.APP_SESSION_APP_USER_ID);
-	}
-
-	@Override
 	public UniqueKey<AppSessionRecord> getPrimaryKey() {
-		return Keys.KEY_APP_SESSION_PRIMARY;
+		return Keys.APP_SESSION_PKEY;
 	}
 
 	@Override
 	public List<ForeignKey<AppSessionRecord, ?>> getReferences() {
-		return Arrays.asList(Keys.APP_SESSION_IBFK_1);
+		return Arrays.asList(Keys.APP_SESSION__FK_APP_SESSION_APP_USER);
 	}
 
 	private transient AppUserPath _appUser;
@@ -184,7 +178,7 @@ public class AppSession extends TableImpl<AppSessionRecord> {
 	 */
 	public AppUserPath appUser() {
 		if (_appUser == null)
-			_appUser = new AppUserPath(this, Keys.APP_SESSION_IBFK_1, null);
+			_appUser = new AppUserPath(this, Keys.APP_SESSION__FK_APP_SESSION_APP_USER, null);
 
 		return _appUser;
 	}
@@ -233,7 +227,7 @@ public class AppSession extends TableImpl<AppSessionRecord> {
 	 */
 	@Override
 	public AppSession where(Condition condition) {
-		return new AppSession(getQualifiedName(), aliased() ? this : null, null, condition);
+		return new AppSession(getQualifiedName(), aliased() ? this : null, null, Internal.condition(this, condition));
 	}
 
 	/**
@@ -300,7 +294,7 @@ public class AppSession extends TableImpl<AppSessionRecord> {
 	 * Create an inline derived table from this table
 	 */
 	@Override
-	public AppSession whereExists(Select<?> select) {
+	public AppSession whereExists(TableLike<?> select) {
 		return where(DSL.exists(select));
 	}
 
@@ -308,7 +302,7 @@ public class AppSession extends TableImpl<AppSessionRecord> {
 	 * Create an inline derived table from this table
 	 */
 	@Override
-	public AppSession whereNotExists(Select<?> select) {
+	public AppSession whereNotExists(TableLike<?> select) {
 		return where(DSL.notExists(select));
 	}
 

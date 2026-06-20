@@ -15,6 +15,7 @@ import org.jooq.TableField;
 import org.jooq.UniqueKey;
 import org.jooq.impl.DSL;
 import org.jooq.impl.Internal;
+import org.jooq.impl.QOM.ForeignKeyRule;
 
 /**
  * A class modelling foreign key relationships and constraints of tables in the default
@@ -27,30 +28,29 @@ public class Keys {
 	// UNIQUE and PRIMARY KEY definitions
 	// -------------------------------------------------------------------------
 
-	public static final UniqueKey<AppSessionRecord> KEY_APP_SESSION_PRIMARY = Internal.createUniqueKey(
-			AppSession.APP_SESSION, DSL.name("KEY_app_session_PRIMARY"), new TableField[] { AppSession.APP_SESSION.ID },
-			true);
+	public static final UniqueKey<AppSessionRecord> APP_SESSION_PKEY = Internal.createUniqueKey(AppSession.APP_SESSION,
+			DSL.name("app_session_pkey"), new TableField[] { AppSession.APP_SESSION.ID }, true);
 
-	public static final UniqueKey<AppUserRecord> KEY_APP_USER_EMAIL = Internal.createUniqueKey(AppUser.APP_USER,
-			DSL.name("KEY_app_user_email"), new TableField[] { AppUser.APP_USER.EMAIL }, true);
+	public static final UniqueKey<AppUserRecord> APP_USER_EMAIL_KEY = Internal.createUniqueKey(AppUser.APP_USER,
+			DSL.name("app_user_email_key"), new TableField[] { AppUser.APP_USER.EMAIL }, true);
 
-	public static final UniqueKey<AppUserRecord> KEY_APP_USER_PRIMARY = Internal.createUniqueKey(AppUser.APP_USER,
-			DSL.name("KEY_app_user_PRIMARY"), new TableField[] { AppUser.APP_USER.ID }, true);
+	public static final UniqueKey<AppUserRecord> APP_USER_PKEY = Internal.createUniqueKey(AppUser.APP_USER,
+			DSL.name("app_user_pkey"), new TableField[] { AppUser.APP_USER.ID }, true);
 
-	public static final UniqueKey<TodoRecord> KEY_TODO_PRIMARY = Internal.createUniqueKey(Todo.TODO,
-			DSL.name("KEY_todo_PRIMARY"), new TableField[] { Todo.TODO.ID }, true);
+	public static final UniqueKey<TodoRecord> TODO_PKEY = Internal.createUniqueKey(Todo.TODO, DSL.name("todo_pkey"),
+			new TableField[] { Todo.TODO.ID }, true);
 
 	// -------------------------------------------------------------------------
 	// FOREIGN KEY definitions
 	// -------------------------------------------------------------------------
 
-	public static final ForeignKey<AppSessionRecord, AppUserRecord> APP_SESSION_IBFK_1 = Internal.createForeignKey(
-			AppSession.APP_SESSION, DSL.name("app_session_ibfk_1"),
-			new TableField[] { AppSession.APP_SESSION.APP_USER_ID }, Keys.KEY_APP_USER_PRIMARY,
-			new TableField[] { AppUser.APP_USER.ID }, true);
+	public static final ForeignKey<AppSessionRecord, AppUserRecord> APP_SESSION__FK_APP_SESSION_APP_USER = Internal
+		.createForeignKey(AppSession.APP_SESSION, DSL.name("fk_app_session_app_user"),
+				new TableField[] { AppSession.APP_SESSION.APP_USER_ID }, Keys.APP_USER_PKEY,
+				new TableField[] { AppUser.APP_USER.ID }, true, ForeignKeyRule.CASCADE, ForeignKeyRule.NO_ACTION);
 
-	public static final ForeignKey<TodoRecord, AppUserRecord> TODO_IBFK_1 = Internal.createForeignKey(Todo.TODO,
-			DSL.name("todo_ibfk_1"), new TableField[] { Todo.TODO.APP_USER_ID }, Keys.KEY_APP_USER_PRIMARY,
-			new TableField[] { AppUser.APP_USER.ID }, true);
+	public static final ForeignKey<TodoRecord, AppUserRecord> TODO__FK_TODO_APP_USER = Internal.createForeignKey(
+			Todo.TODO, DSL.name("fk_todo_app_user"), new TableField[] { Todo.TODO.APP_USER_ID }, Keys.APP_USER_PKEY,
+			new TableField[] { AppUser.APP_USER.ID }, true, ForeignKeyRule.CASCADE, ForeignKeyRule.NO_ACTION);
 
 }

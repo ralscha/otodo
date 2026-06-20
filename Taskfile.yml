@@ -1,0 +1,145 @@
+version: '3'
+
+vars:
+  MVNW: '{{if eq OS "windows"}}cmd /c mvnw.cmd{{else}}./mvnw{{end}}'
+
+
+tasks:
+  default:
+    desc: List available tasks
+    cmds:
+      - task --list
+    silent: true
+
+  install:
+    desc: Install npm dependencies for the client and email templates
+    deps:
+      - client:install
+      - emails:install
+
+  verify:
+    desc: Run the full backend Maven verification, including client build and Playwright integration tests
+    dir: server
+    cmds:
+      - '{{.MVNW}} verify'
+
+  verify:no-it:
+    desc: Run backend verification without integration tests
+    dir: server
+    cmds:
+      - '{{.MVNW}} verify -DskipITs'
+
+  test:
+    desc: Run backend unit tests
+    dir: server
+    cmds:
+      - '{{.MVNW}} test'
+
+  build:
+    desc: Build the client and backend jar
+    deps:
+      - client:build
+    dir: server
+    cmds:
+      - '{{.MVNW}} package -DskipTests'
+
+  run:
+    desc: Run the Spring Boot backend
+    deps:
+      - db:up
+    dir: server
+    cmds:
+      - '{{.MVNW}} spring-boot:run'
+
+  clean:
+    desc: Clean backend build output
+    dir: server
+    cmds:
+      - '{{.MVNW}} clean'
+
+  server:format:
+    desc: Format backend Java sources with Spring Java Format
+    dir: server
+    cmds:
+      - '{{.MVNW}} spring-javaformat:apply'
+
+  db:up:
+    desc: Start the local PostgreSQL database
+    dir: server
+    cmds:
+      - docker compose up -d
+
+  db:down:
+    desc: Stop the local PostgreSQL database
+    dir: server
+    cmds:
+      - docker compose down
+
+  db:logs:
+    desc: Follow local PostgreSQL logs
+    dir: server
+    cmds:
+      - docker compose logs -f otodo_db
+
+  db:reset:
+    desc: Recreate the local PostgreSQL database and remove its volumes
+    dir: server
+    cmds:
+      - docker compose down -v
+      - docker compose up -d
+
+  jooq:generate:
+    desc: Generate jOOQ sources from the local PostgreSQL database
+    deps:
+      - db:up
+    dir: server
+    cmds:
+      - '{{.MVNW}} generate-sources -Pjooq-db'
+
+  client:install:
+    desc: Install client npm dependencies
+    dir: client
+    cmds:
+      - npm install
+
+  client:start:
+    desc: Start the Angular/Ionic development server
+    dir: client
+    cmds:
+      - npm start
+
+  client:build:
+    desc: Build the Angular/Ionic client
+    dir: client
+    cmds:
+      - npm run build
+
+  client:lint:
+    desc: Lint the Angular/Ionic client
+    dir: client
+    cmds:
+      - npm run lint
+
+  client:format:
+    desc: Format the Angular/Ionic client
+    dir: client
+    cmds:
+      - npm run format
+
+  client:serve-dist:
+    desc: Serve the built client and proxy backend requests
+    dir: client
+    cmds:
+      - npm run serve-dist
+
+  emails:install:
+    desc: Install email template npm dependencies
+    dir: emails
+    cmds:
+      - npm install
+
+  emails:build:
+    desc: Compile MJML email templates into backend resources
+    dir: emails
+    cmds:
+      - npm run build

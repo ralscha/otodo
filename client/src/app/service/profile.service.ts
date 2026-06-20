@@ -1,28 +1,24 @@
-import {inject, Injectable} from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
-import {Session} from '../model/session';
+import { inject, Service } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class ProfileService {
   private readonly httpClient = inject(HttpClient);
 
-
-  changePassword(oldPassword: string, newPassword: string): Observable<'INVALID' | 'WEAK_PASSWORD' | null> {
+  changePassword(
+    oldPassword: string,
+    newPassword: string,
+  ): Observable<'INVALID' | 'WEAK_PASSWORD' | null> {
     const body = new HttpParams().set('oldPassword', oldPassword).set('newPassword', newPassword);
     return this.httpClient.post<'INVALID' | 'WEAK_PASSWORD' | null>('/be/change-password', body);
   }
 
   deleteAccount(password: string): Observable<boolean> {
-    return this.httpClient.post('/be/delete-account', password, {responseType: 'text'})
-      .pipe(map(response => response === 'true'));
-  }
-
-  fetchSessions(): Observable<Session[]> {
-    return this.httpClient.get<Session[]>('/be/sessions');
+    return this.httpClient
+      .post('/be/delete-account', password, { responseType: 'text' })
+      .pipe(map((response) => response === 'true'));
   }
 
   deleteSession(sessionId: string): Observable<void> {
@@ -35,7 +31,8 @@ export class ProfileService {
   }
 
   confirmEmailChange(token: string): Observable<boolean> {
-    return this.httpClient.post('/be/confirm-email-change', token, {responseType: 'text'})
-      .pipe(map(response => response === 'true'));
+    return this.httpClient
+      .post('/be/confirm-email-change', token, { responseType: 'text' })
+      .pipe(map((response) => response === 'true'));
   }
 }

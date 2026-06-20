@@ -5,24 +5,21 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-
   <ion-grid class="ion-margin-top ion-text-center">
     <ion-row>
       <ion-col>
-        @if (showMsg) {
-          <ion-text color="success">
-            You have been successfully logged out.
-          </ion-text>
+        @if (showMsg()) {
+          <ion-text color="success"> You have been successfully logged out. </ion-text>
         }
       </ion-col>
     </ion-row>
 
     <ion-row>
       <ion-col class="ion-margin-top" offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
-        <ion-button expand="block" routerDirection="root" routerLink="/login">Go to Login</ion-button>
+        <ion-button expand="block" routerDirection="root" routerLink="/login"
+          >Go to Login</ion-button
+        >
       </ion-col>
     </ion-row>
   </ion-grid>
-
 </ion-content>
-

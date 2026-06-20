@@ -3,19 +3,13 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/profile" />
     </ion-buttons>
-    <ion-title>
-      Delete Account
-    </ion-title>
+    <ion-title> Delete Account </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-
-  <form #deleteForm="ngForm" (ngSubmit)="deleteForm.valid && deleteAccount(password.value)"
-        [ngFormOptions]="{updateOn: 'submit'}" novalidate>
-
+  <form (submit)="deleteAccount(); $event.preventDefault()" novalidate>
     <ion-grid>
-
       <ion-row>
         <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
           <ion-text color="danger">
@@ -28,38 +22,32 @@
       <ion-row>
         <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
           <ion-item>
-            <ion-input #password="ngModel" [minlength]="8" [required]="true"
-                       autocomplete="current-password"
-                       label="Password"
-                       labelPlacement="stacked" name="password"
-                       ngModel type="password" />
+            <ion-input
+              [formField]="deleteForm.password"
+              autocomplete="current-password"
+              label="Password"
+              labelPlacement="stacked"
+              type="password"
+            />
           </ion-item>
         </ion-col>
       </ion-row>
 
       <ion-row>
         <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
-          @if (deleteForm.submitted && password.invalid) {
+          @if (submitted() && deleteForm.password().invalid()) {
             <ion-text color="danger">
-              @if (password.errors?.['required']) {
-                <p class="ion-padding-start">
-                  Password is required
-                </p>
+              @if (deleteForm.password().getError('required')) {
+                <p class="ion-padding-start">Password is required</p>
               }
-              @if (password.errors?.['minlength']) {
-                <p class="ion-padding-start">
-                  Minimum length is 8 characters
-                </p>
+              @if (deleteForm.password().getError('minLength')) {
+                <p class="ion-padding-start">Minimum length is 8 characters</p>
               }
             </ion-text>
           }
-          @if (submitError) {
+          @if (submitError() === 'passwordInvalid') {
             <ion-text color="danger">
-              @if (submitError === 'passwordInvalid') {
-                <p class="ion-padding-start">
-                  Password is invalid
-                </p>
-              }
+              <p class="ion-padding-start">Password is invalid</p>
             </ion-text>
           }
         </ion-col>
@@ -70,9 +58,6 @@
           <ion-button color="danger" expand="block" type="submit">Delete my Account</ion-button>
         </ion-col>
       </ion-row>
-
     </ion-grid>
-
   </form>
-
 </ion-content>

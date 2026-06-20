@@ -1,5 +1,7 @@
 <mjml>
    <mj-head>
+     <mj-title>OTodo Email Change</mj-title>
+     <mj-preview>Confirm your OTodo email address change.</mj-preview>
      <mj-attributes>
        <mj-all font-family="Arial" font-size="20px" />
      </mj-attributes>

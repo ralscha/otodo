@@ -119,7 +119,7 @@ public class TodoRecord extends UpdatableRecordImpl<TodoRecord> {
 		setDescription(description);
 		setAppUserId(appUserId);
 		setUpdated(updated);
-		resetChangedOnNotNull();
+		resetTouchedOnNotNull();
 	}
 
 }

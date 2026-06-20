@@ -1,6 +1,6 @@
-import {Component, inject, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {MessagesService} from '../../service/messages.service';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MessagesService } from '../../service/messages.service';
 import {
   AlertController,
   IonBackButton,
@@ -19,20 +19,47 @@ import {
   IonText,
   IonTextarea,
   IonTitle,
-  IonToolbar
+  IonToolbar,
 } from '@ionic/angular/standalone';
-import {Todo} from '../../model/todo';
-import {TodoService} from '../../service/todo.service';
-import {FormsModule, NgForm} from '@angular/forms';
+import { Todo } from '../../model/todo';
+import { TodoService } from '../../service/todo.service';
+import { FormField, form, required, schema } from '@angular/forms/signals';
 
 @Component({
   selector: 'app-edit',
   templateUrl: './edit.page.html',
   styleUrls: ['./edit.page.scss'],
-  imports: [FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonItem, IonInput, IonText, IonButton, IonButtons, IonBackButton, IonTextarea, IonFab, IonFabButton, IonIcon]
+  imports: [
+    FormField,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonItem,
+    IonInput,
+    IonText,
+    IonButton,
+    IonButtons,
+    IonBackButton,
+    IonTextarea,
+    IonFab,
+    IonFabButton,
+    IonIcon,
+  ],
 })
 export class EditPage implements OnInit {
-  selectedTodo: Todo | undefined;
+  selectedTodo = signal<Todo | undefined>(undefined);
+  submitted = signal(false);
+  readonly todoModel = signal({ subject: '', description: '' });
+  readonly todoForm = form(
+    this.todoModel,
+    schema((path) => {
+      required(path.subject);
+    }),
+  );
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly messagesService = inject(MessagesService);
@@ -42,49 +69,62 @@ export class EditPage implements OnInit {
   async ngOnInit(): Promise<void> {
     const todoIdString = this.route.snapshot.paramMap.get('id');
     if (todoIdString) {
-      this.selectedTodo = await this.todoService.getTodo(parseInt(todoIdString, 10));
+      const todo = await this.todoService.getTodo(parseInt(todoIdString, 10));
+      this.selectedTodo.set(todo);
+      this.todoForm().reset({
+        subject: todo?.subject ?? '',
+        description: todo?.description ?? '',
+      });
     } else {
-      this.selectedTodo = {
+      this.selectedTodo.set({
         id: null,
         subject: null,
         description: null,
-        ts: 0
-      };
+        ts: 0,
+      });
+      this.todoForm().reset({ subject: '', description: '' });
     }
   }
 
   async deleteTodo(): Promise<void> {
-    if (this.selectedTodo) {
+    if (this.selectedTodo()) {
       const alert = await this.alertController.create({
         header: 'Delete Todo',
         message: 'Do you really want to delete this todo?',
         buttons: [
           {
             text: 'Cancel',
-            role: 'cancel'
-          }, {
+            role: 'cancel',
+          },
+          {
             text: 'Delete Todo',
-            handler: async () => this.reallyDeleteTodo()
-          }
-        ]
+            handler: async () => this.reallyDeleteTodo(),
+          },
+        ],
       });
       await alert.present();
     }
   }
 
-  async save(form: NgForm): Promise<void> {
-    if (this.selectedTodo) {
-      this.selectedTodo.subject = form.value.subject;
-      this.selectedTodo.description = form.value.description;
-      await this.todoService.save(this.selectedTodo);
+  async save(): Promise<void> {
+    this.submitted.set(true);
+    this.todoForm().markAsTouched();
+
+    const selectedTodo = this.selectedTodo();
+    if (selectedTodo && !this.todoForm().invalid()) {
+      const formValue = this.todoModel();
+      selectedTodo.subject = formValue.subject;
+      selectedTodo.description = formValue.description;
+      await this.todoService.save(selectedTodo);
       await this.messagesService.showSuccessToast('Todo successfully saved', 1000);
       await this.router.navigate(['/todos']);
     }
   }
 
   private async reallyDeleteTodo(): Promise<void> {
-    if (this.selectedTodo) {
-      await this.todoService.delete(this.selectedTodo);
+    const selectedTodo = this.selectedTodo();
+    if (selectedTodo) {
+      await this.todoService.delete(selectedTodo);
       await this.router.navigate(['/todos']);
     }
   }

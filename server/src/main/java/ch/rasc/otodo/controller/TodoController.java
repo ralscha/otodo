@@ -90,7 +90,7 @@ class TodoController {
 								record.get(TODO.SUBJECT), record.get(TODO.DESCRIPTION)));
 					}
 					else {
-						LocalDateTime now = LocalDateTime.now();
+						LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 						int noOfUpdated = this.dsl.update(TODO)
 							.set(TODO.SUBJECT, clientTodo.getSubject())
 							.set(TODO.DESCRIPTION, clientTodo.getDescription())
@@ -109,7 +109,7 @@ class TodoController {
 		if (sync.getInserted() != null && !sync.getInserted().isEmpty()) {
 			inserted = new HashMap<>();
 			for (Todo clientTodo : sync.getInserted()) {
-				LocalDateTime now = LocalDateTime.now();
+				LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
 				long id = this.dsl.insertInto(TODO, TODO.SUBJECT, TODO.DESCRIPTION, TODO.UPDATED, TODO.APP_USER_ID)
 					.values(clientTodo.getSubject(), clientTodo.getDescription(), now, loggedInUserId)

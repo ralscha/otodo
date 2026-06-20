@@ -4,6 +4,7 @@ import static ch.rasc.otodo.db.tables.AppSession.APP_SESSION;
 import static ch.rasc.otodo.db.tables.AppUser.APP_USER;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -175,7 +176,7 @@ public class ProfileController {
 
 				String confirmationToken = this.tokenService.createToken();
 				txdsl.update(APP_USER)
-					.set(APP_USER.CONFIRMATION_TOKEN_CREATED, LocalDateTime.now())
+					.set(APP_USER.CONFIRMATION_TOKEN_CREATED, LocalDateTime.now(ZoneOffset.UTC))
 					.set(APP_USER.CONFIRMATION_TOKEN, confirmationToken)
 					.set(APP_USER.EMAIL_NEW, newEmail)
 					.where(APP_USER.ID.eq(user.getAppUserId()))
@@ -202,8 +203,8 @@ public class ProfileController {
 			long userId = record.get(APP_USER.ID);
 			LocalDateTime tokenCreated = record.get(APP_USER.CONFIRMATION_TOKEN_CREATED);
 
-			if (tokenCreated != null && tokenCreated
-				.isAfter(LocalDateTime.now().minus(this.appProperties.getSignupNotConfirmedUserMaxAge()))) {
+			if (tokenCreated != null && tokenCreated.isAfter(
+					LocalDateTime.now(ZoneOffset.UTC).minus(this.appProperties.getSignupNotConfirmedUserMaxAge()))) {
 
 				this.dsl.update(APP_USER)
 					.setNull(APP_USER.CONFIRMATION_TOKEN)

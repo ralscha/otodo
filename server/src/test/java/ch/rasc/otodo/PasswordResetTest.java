@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,7 +47,7 @@ class PasswordResetTest extends AbstractEmailTest {
 		AppUserRecord appUser = getUtilService().getUser(email);
 		assertThat(appUser.getEnabled()).isTrue();
 		assertThat(appUser.getPasswordResetToken()).isEqualTo(token);
-		assertThat(appUser.getPasswordResetTokenCreated()).isBefore(LocalDateTime.now());
+		assertThat(appUser.getPasswordResetTokenCreated()).isBefore(LocalDateTime.now(ZoneOffset.UTC));
 
 		getDsl().update(APP_USER)
 			.set(APP_USER.PASSWORD_RESET_TOKEN_CREATED,
@@ -76,7 +77,7 @@ class PasswordResetTest extends AbstractEmailTest {
 		AppUserRecord appUser = getUtilService().getUser(email);
 		assertThat(appUser.getEnabled()).isTrue();
 		assertThat(appUser.getPasswordResetToken()).isEqualTo(token);
-		assertThat(appUser.getPasswordResetTokenCreated()).isBefore(LocalDateTime.now());
+		assertThat(appUser.getPasswordResetTokenCreated()).isBefore(LocalDateTime.now(ZoneOffset.UTC));
 
 		sendPasswordRequest(token, "1234567890", "WEAK_PASSWORD");
 		sendPasswordRequest(token, "new_password", null);

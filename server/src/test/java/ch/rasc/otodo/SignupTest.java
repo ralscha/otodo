@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,7 +53,7 @@ class SignupTest extends AbstractEmailTest {
 		AppUserRecord appUser = getUtilService().getUser(newUserEmail);
 		assertThat(appUser.getEnabled()).isFalse();
 		assertThat(appUser.getConfirmationToken()).isEqualTo(token);
-		assertThat(appUser.getConfirmationTokenCreated()).isBefore(LocalDateTime.now());
+		assertThat(appUser.getConfirmationTokenCreated()).isBefore(LocalDateTime.now(ZoneOffset.UTC));
 
 		getDsl().update(APP_USER)
 			.set(APP_USER.CONFIRMATION_TOKEN_CREATED,
@@ -87,7 +88,7 @@ class SignupTest extends AbstractEmailTest {
 		AppUserRecord appUser = getUtilService().getUser(newUserEmail);
 		assertThat(appUser.getEnabled()).isFalse();
 		assertThat(appUser.getConfirmationToken()).isEqualTo(token);
-		assertThat(appUser.getConfirmationTokenCreated()).isBefore(LocalDateTime.now());
+		assertThat(appUser.getConfirmationTokenCreated()).isBefore(LocalDateTime.now(ZoneOffset.UTC));
 
 		ResponseEntity<Boolean> response = getRestTemplate().postForEntity("/be/confirm-signup", token, boolean.class);
 
@@ -113,7 +114,7 @@ class SignupTest extends AbstractEmailTest {
 		AppUserRecord appUser = getUtilService().getUser(newUserEmail);
 		assertThat(appUser.getEnabled()).isFalse();
 		assertThat(appUser.getConfirmationToken()).isEqualTo(token);
-		assertThat(appUser.getConfirmationTokenCreated()).isBefore(LocalDateTime.now());
+		assertThat(appUser.getConfirmationTokenCreated()).isBefore(LocalDateTime.now(ZoneOffset.UTC));
 
 		ResponseEntity<Boolean> response = getRestTemplate().postForEntity("/be/confirm-signup", token, boolean.class);
 

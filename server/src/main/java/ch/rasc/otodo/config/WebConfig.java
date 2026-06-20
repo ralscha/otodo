@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverters;
 import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -21,18 +21,17 @@ public class WebConfig {
 	WebMvcConfigurer webMvcConfigurer() {
 		return new WebMvcConfigurer() {
 			@Override
-			public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
-
+			public void configureMessageConverters(HttpMessageConverters.ServerBuilder builder) {
 				List<MediaType> cspReportMediaTypes = List.of(new MediaType("application", "csp-report"));
 
-				HttpMessageConverter<Object> cspReportConverter = new JacksonJsonHttpMessageConverter() {
+				var cspReportConverter = new JacksonJsonHttpMessageConverter() {
 					@Override
 					public List<MediaType> getSupportedMediaTypes() {
 						return cspReportMediaTypes;
 					}
 				};
 
-				converters.add(cspReportConverter);
+				builder.registerDefaults().addCustomConverter(cspReportConverter);
 			}
 
 			@Override

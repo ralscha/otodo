@@ -1,5 +1,7 @@
 package ch.rasc.otodo.service;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -62,7 +64,7 @@ public class EmailService {
 		for (EmailTemplate et : EmailTemplate.values()) {
 			ClassPathResource cp = new ClassPathResource("emails/" + et.getFileName());
 			try (InputStream is = cp.getInputStream()) {
-				this.templates.put(et, mustacheCompiler.compile(new InputStreamReader(is)));
+				this.templates.put(et, mustacheCompiler.compile(new InputStreamReader(is, UTF_8)));
 			}
 			catch (IOException e) {
 				Application.log.error("mustache compile failed", e);

@@ -227,7 +227,7 @@ public class AppUserRecord extends UpdatableRecordImpl<AppUserRecord> {
 		setConfirmationTokenCreated(confirmationTokenCreated);
 		setPasswordResetToken(passwordResetToken);
 		setPasswordResetTokenCreated(passwordResetTokenCreated);
-		resetChangedOnNotNull();
+		resetTouchedOnNotNull();
 	}
 
 }

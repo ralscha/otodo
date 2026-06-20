@@ -119,7 +119,7 @@ public class AppSessionRecord extends UpdatableRecordImpl<AppSessionRecord> {
 		setLastAccess(lastAccess);
 		setIp(ip);
 		setUserAgent(userAgent);
-		resetChangedOnNotNull();
+		resetTouchedOnNotNull();
 	}
 
 }

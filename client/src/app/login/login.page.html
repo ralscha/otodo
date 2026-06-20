@@ -5,36 +5,33 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <form #loginForm="ngForm" (ngSubmit)="loginForm.valid && login(email.value, password.value)"
-        [ngFormOptions]="{updateOn: 'submit'}" novalidate>
-
+  <form (submit)="login(); $event.preventDefault()" novalidate>
     <ion-grid>
       <ion-row>
         <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
           <ion-item>
-            <ion-input #email="ngModel" [required]="true" [spellcheck]="false" autocapitalize="off"
-                       autocomplete="username"
-                       email
-                       label="Email" labelPlacement="stacked"
-                       name="email"
-                       ngModel type="email" />
+            <ion-input
+              [formField]="loginForm.email"
+              [spellcheck]="false"
+              autocapitalize="off"
+              autocomplete="username"
+              label="Email"
+              labelPlacement="stacked"
+              type="email"
+            />
           </ion-item>
         </ion-col>
       </ion-row>
 
       <ion-row>
         <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
-          @if (loginForm.submitted && email.invalid) {
+          @if (submitted() && loginForm.email().invalid()) {
             <ion-text color="danger">
-              @if (email.errors?.['required']) {
-                <p class="ion-padding-start">
-                  Email is required
-                </p>
+              @if (loginForm.email().getError('required')) {
+                <p class="ion-padding-start">Email is required</p>
               }
-              @if (email.errors?.['email']) {
-                <p class="ion-padding-start">
-                  Not a valid email address
-                </p>
+              @if (loginForm.email().getError('email')) {
+                <p class="ion-padding-start">Not a valid email address</p>
               }
             </ion-text>
           }
@@ -44,29 +41,26 @@
       <ion-row>
         <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
           <ion-item>
-            <ion-input #password="ngModel" [minlength]="8" [required]="true" autocomplete="current-password"
-                       label="Password"
-                       labelPlacement="stacked"
-                       name="password"
-                       ngModel
-                       type="password" />
+            <ion-input
+              [formField]="loginForm.password"
+              autocomplete="current-password"
+              label="Password"
+              labelPlacement="stacked"
+              type="password"
+            />
           </ion-item>
         </ion-col>
       </ion-row>
 
       <ion-row>
         <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
-          @if (loginForm.submitted && password.invalid) {
+          @if (submitted() && loginForm.password().invalid()) {
             <ion-text color="danger">
-              @if (password.errors?.['required']) {
-                <p class="ion-padding-start">
-                  Password is required
-                </p>
+              @if (loginForm.password().getError('required')) {
+                <p class="ion-padding-start">Password is required</p>
               }
-              @if (password.errors?.['minlength']) {
-                <p class="ion-padding-start">
-                  Minimum length is 8 characters
-                </p>
+              @if (loginForm.password().getError('minLength')) {
+                <p class="ion-padding-start">Minimum length is 8 characters</p>
               }
             </ion-text>
           }
@@ -77,9 +71,7 @@
         <ion-row>
           <ion-col offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
             <ion-text color="danger">
-              <p class="ion-padding-start">
-                Caps Lock is on.
-              </p>
+              <p class="ion-padding-start">Caps Lock is on.</p>
             </ion-text>
           </ion-col>
         </ion-row>
@@ -93,15 +85,26 @@
 
       <ion-row>
         <ion-col class="ion-margin-top" offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
-          <ion-button color="light" expand="block" routerDirection="forward" routerLink="/signup" type="button">Sign Up
+          <ion-button
+            color="light"
+            expand="block"
+            routerDirection="forward"
+            routerLink="/signup"
+            type="button"
+            >Sign Up
           </ion-button>
         </ion-col>
       </ion-row>
 
       <ion-row>
         <ion-col class="ion-margin-top" offsetLg="4" offsetSm="3" sizeLg="4" sizeSm="6">
-          <ion-button expand="block" fill="clear" routerDirection="forward" routerLink="/password-reset-request"
-                      type="button">Forgot my Password
+          <ion-button
+            expand="block"
+            fill="clear"
+            routerDirection="forward"
+            routerLink="/password-reset-request"
+            type="button"
+            >Forgot my Password
           </ion-button>
         </ion-col>
       </ion-row>

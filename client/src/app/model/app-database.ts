@@ -1,11 +1,9 @@
 import Dexie from 'dexie';
-import {Injectable} from '@angular/core';
-import {Todo} from './todo';
-import {ClientError} from './client-error';
+import { Service } from '@angular/core';
+import { Todo } from './todo';
+import { ClientError } from './client-error';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class AppDatabase extends Dexie {
   authenticationToken!: Dexie.Table<string, number>;
   invalidAuthenticationTokens!: Dexie.Table<string, number>;
@@ -18,7 +16,7 @@ export class AppDatabase extends Dexie {
       authenticationToken: '++',
       invalidAuthenticationTokens: '++',
       todos: 'id,ts',
-      errors: '++id'
+      errors: '++id',
     });
   }
 }
