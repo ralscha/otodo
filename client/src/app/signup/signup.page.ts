@@ -16,7 +16,15 @@ import {
 } from '@ionic/angular/standalone';
 import { AuthService } from '../service/auth.service';
 import { MessagesService } from '../service/messages.service';
-import { email, FormField, form, minLength, required, schema } from '@angular/forms/signals';
+import {
+  email,
+  FormField,
+  FormRoot,
+  form,
+  minLength,
+  required,
+  schema,
+} from '@angular/forms/signals';
 
 @Component({
   selector: 'app-signup',
@@ -24,6 +32,7 @@ import { email, FormField, form, minLength, required, schema } from '@angular/fo
   styleUrls: ['./signup.page.scss'],
   imports: [
     FormField,
+    FormRoot,
     IonHeader,
     IonToolbar,
     IonTitle,

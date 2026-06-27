@@ -18,7 +18,7 @@ import {
   NavController,
 } from '@ionic/angular/standalone';
 import { AppDatabase } from '../../model/app-database';
-import { FormField, form, minLength, required, schema } from '@angular/forms/signals';
+import { FormField, FormRoot, form, minLength, required, schema } from '@angular/forms/signals';
 import { ProfileService } from '../../service/profile.service';
 
 @Component({
@@ -27,6 +27,7 @@ import { ProfileService } from '../../service/profile.service';
   styleUrls: ['./account.page.scss'],
   imports: [
     FormField,
+    FormRoot,
     IonHeader,
     IonToolbar,
     IonTitle,

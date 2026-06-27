@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { MessagesService } from '../../service/messages.service';
-import { FormField, form, minLength, required, schema } from '@angular/forms/signals';
+import { FormField, FormRoot, form, minLength, required, schema } from '@angular/forms/signals';
 import { ProfileService } from '../../service/profile.service';
 import { AuthService } from '../../service/auth.service';
 import {
@@ -26,6 +26,7 @@ import {
   styleUrls: ['./password.page.scss'],
   imports: [
     FormField,
+    FormRoot,
     IonHeader,
     IonToolbar,
     IonTitle,

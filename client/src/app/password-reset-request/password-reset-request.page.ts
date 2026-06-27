@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { AuthService } from '../service/auth.service';
 import { MessagesService } from '../service/messages.service';
-import { email, FormField, form, required, schema } from '@angular/forms/signals';
+import { email, FormField, FormRoot, form, required, schema } from '@angular/forms/signals';
 import {
   IonBackButton,
   IonButton,
@@ -24,6 +24,7 @@ import {
   styleUrls: ['./password-reset-request.page.scss'],
   imports: [
     FormField,
+    FormRoot,
     IonHeader,
     IonToolbar,
     IonTitle,

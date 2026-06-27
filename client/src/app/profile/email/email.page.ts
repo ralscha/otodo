@@ -1,7 +1,15 @@
 import { Component, inject, signal } from '@angular/core';
 import { ProfileService } from '../../service/profile.service';
 import { MessagesService } from '../../service/messages.service';
-import { email, FormField, form, minLength, required, schema } from '@angular/forms/signals';
+import {
+  email,
+  FormField,
+  FormRoot,
+  form,
+  minLength,
+  required,
+  schema,
+} from '@angular/forms/signals';
 import {
   IonBackButton,
   IonButton,
@@ -24,6 +32,7 @@ import {
   styleUrls: ['./email.page.scss'],
   imports: [
     FormField,
+    FormRoot,
     IonHeader,
     IonToolbar,
     IonTitle,

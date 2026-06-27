@@ -11,7 +11,20 @@
           @for (p of appPages(); track p) {
             <ion-menu-toggle [autoHide]="false">
               <ion-item [routerLink]="p.url" routerDirection="root" routerLinkActive="active">
-                <ion-icon [name]="p.icon" slot="start" />
+                @switch (p.icon) {
+                  @case ('checkmark-circle-outline') {
+                    <ion-icon name="checkmark-circle-outline" slot="start" />
+                  }
+                  @case ('people') {
+                    <ion-icon name="people" slot="start" />
+                  }
+                  @case ('person') {
+                    <ion-icon name="person" slot="start" />
+                  }
+                  @case ('log-out') {
+                    <ion-icon name="log-out" slot="start" />
+                  }
+                }
                 <ion-label>
                   {{ p.title }}
                 </ion-label>

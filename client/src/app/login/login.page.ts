@@ -16,7 +16,15 @@ import {
 } from '@ionic/angular/standalone';
 import { AuthService } from '../service/auth.service';
 import { MessagesService } from '../service/messages.service';
-import { email, FormField, form, minLength, required, schema } from '@angular/forms/signals';
+import {
+  email,
+  FormField,
+  FormRoot,
+  form,
+  minLength,
+  required,
+  schema,
+} from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -25,6 +33,7 @@ import { RouterLink } from '@angular/router';
   styleUrls: ['./login.page.scss'],
   imports: [
     FormField,
+    FormRoot,
     RouterLink,
     IonRouterLink,
     IonHeader,
@@ -84,15 +93,13 @@ export class LoginPage {
   }
 
   @HostListener('window:keydown', ['$event'])
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onKeyDown(event: any): void {
-    this.capslockOn = event.getModifierState && event.getModifierState('CapsLock');
+  onKeyDown(event: KeyboardEvent): void {
+    this.capslockOn = event.getModifierState('CapsLock');
   }
 
   @HostListener('window:keyup', ['$event'])
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onKeyUp(event: any): void {
-    this.capslockOn = event.getModifierState && event.getModifierState('CapsLock');
+  onKeyUp(event: KeyboardEvent): void {
+    this.capslockOn = event.getModifierState('CapsLock');
   }
 
   private showLoginFailedToast(): void {

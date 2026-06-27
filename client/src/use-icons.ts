@@ -1,1 +1,1 @@
-export { add, trash } from 'ionicons/icons';
+export { add, checkmarkCircleOutline, logOut, people, person, trash } from 'ionicons/icons';

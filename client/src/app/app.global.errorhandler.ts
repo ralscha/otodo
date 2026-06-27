@@ -1,4 +1,4 @@
-import { ErrorHandler, inject, Injectable } from '@angular/core';
+import { ErrorHandler, inject, Service } from '@angular/core';
 import { AppDatabase } from './model/app-database';
 import { HttpClient } from '@angular/common/http';
 import { ConnectionService } from './service/connection.service';
@@ -6,7 +6,7 @@ import { catchError, filter, mapTo, mergeMap, switchMap, take } from 'rxjs/opera
 import { environment } from '../environments/environment';
 import { from, iif, noop } from 'rxjs';
 
-@Injectable()
+@Service({ autoProvided: false })
 export class AppGlobalErrorhandler implements ErrorHandler {
   private readonly appDatabase = inject(AppDatabase);
   private readonly httpClient = inject(HttpClient);
@@ -35,8 +35,7 @@ export class AppGlobalErrorhandler implements ErrorHandler {
       .subscribe(noop, noop);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async handleError(error: any): Promise<void> {
+  async handleError(error: unknown): Promise<void> {
     if (!environment.production) {
       console.error(error);
     }
@@ -49,7 +48,7 @@ export class AppGlobalErrorhandler implements ErrorHandler {
       connectionType: connection?.type,
     };
 
-    const errorMsg = error && error.message ? error.message : error;
+    const errorMsg = error instanceof Error ? error.message : error;
     const body = JSON.stringify({ ts: Date.now(), userAgent, error: errorMsg });
 
     this.connectionService

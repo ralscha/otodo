@@ -23,7 +23,7 @@ import {
 } from '@ionic/angular/standalone';
 import { Todo } from '../../model/todo';
 import { TodoService } from '../../service/todo.service';
-import { FormField, form, required, schema } from '@angular/forms/signals';
+import { FormField, FormRoot, form, required, schema } from '@angular/forms/signals';
 
 @Component({
   selector: 'app-edit',
@@ -31,6 +31,7 @@ import { FormField, form, required, schema } from '@angular/forms/signals';
   styleUrls: ['./edit.page.scss'],
   imports: [
     FormField,
+    FormRoot,
     IonHeader,
     IonToolbar,
     IonTitle,
