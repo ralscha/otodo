@@ -21,7 +21,7 @@ import {
   IonSelectOption,
   IonTitle,
   IonToolbar,
-} from '@ionic/angular/standalone';
+} from '@ionic/angular';
 
 @Component({
   selector: 'app-users',

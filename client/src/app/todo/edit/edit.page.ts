@@ -20,7 +20,7 @@ import {
   IonTextarea,
   IonTitle,
   IonToolbar,
-} from '@ionic/angular/standalone';
+} from '@ionic/angular';
 import { Todo } from '../../model/todo';
 import { TodoService } from '../../service/todo.service';
 import { FormField, FormRoot, form, required, schema } from '@angular/forms/signals';

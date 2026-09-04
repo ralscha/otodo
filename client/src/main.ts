@@ -7,13 +7,13 @@ import {
   withHashLocation,
   withPreloading,
 } from '@angular/router';
-import { ErrorHandler, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
+import { ErrorHandler, importProvidersFrom } from '@angular/core';
 import { AppGlobalErrorhandler } from './app/app.global.errorhandler';
 import { bootstrapApplication, BrowserModule } from '@angular/platform-browser';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from './environments/environment';
 import { AppComponent } from './app/app.component';
-import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
+import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import * as useIcons from './use-icons';
 import { routes } from './app/app-routing';
@@ -22,7 +22,6 @@ addIcons(useIcons);
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideZoneChangeDetection(),
     importProvidersFrom(
       BrowserModule,
       ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
