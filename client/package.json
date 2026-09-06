@@ -38,7 +38,7 @@
     "@rdlabo/ionic-angular-collect-icons": "3.0.1",
     "angular-eslint": "22.2.0",
     "bread-compressor-cli": "4.1.1",
-    "eslint": "10.9.1",
+    "eslint": "10.10.0",
     "local-web-server": "5.4.0",
     "prettier": "3.9.6",
     "replace-in-file": "9.0.0",

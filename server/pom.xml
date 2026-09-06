@@ -16,7 +16,7 @@
   <properties>
     <java.version>25</java.version>
     <flyway.version>12.9.0</flyway.version>
-    <jooq.version>3.21.7</jooq.version>
+    <jooq.version>3.21.8</jooq.version>
   </properties>
 
   <dependencies>
