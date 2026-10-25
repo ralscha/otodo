@@ -42,7 +42,7 @@
     "local-web-server": "5.4.2",
     "prettier": "3.9.10",
     "replace-in-file": "9.0.0",
-    "typescript": "6.0.3",
+    "typescript": "7.0.2",
     "typescript-eslint": "8.72.0"
   }
 }
