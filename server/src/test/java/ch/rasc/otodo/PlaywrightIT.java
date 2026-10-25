@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.util.Objects;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -17,9 +19,11 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
 import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
+import com.microsoft.playwright.assertions.PlaywrightAssertions;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.WaitUntilState;
 
@@ -27,14 +31,19 @@ class PlaywrightIT extends AbstractBaseTest {
 
 	private static final DockerImageName NGINX_IMAGE = DockerImageName.parse("nginx:1.30.3-alpine");
 
+	private static final String PLAYWRIGHT_VERSION = Objects.requireNonNull(
+			Playwright.class.getPackage().getImplementationVersion(), "Playwright JAR must declare its version");
+
 	private static final DockerImageName PLAYWRIGHT_IMAGE = DockerImageName
-		.parse("mcr.microsoft.com/playwright:v1.60.0-noble");
+		.parse("mcr.microsoft.com/playwright:v" + PLAYWRIGHT_VERSION + "-noble");
 
 	@LocalServerPort
 	private int localServerPort;
 
 	@TempDir
 	private Path tempDir;
+
+	private String appBaseUrl = "http://otodo-web:8080";
 
 	@Test
 	void loginFormShowsValidationErrors() throws IOException {
@@ -72,7 +81,7 @@ class PlaywrightIT extends AbstractBaseTest {
 			page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save")).click();
 			page.waitForURL("**/todos");
 
-			assertThat(page.getByText("Playwright smoke todo").isVisible()).isTrue();
+			PlaywrightAssertions.assertThat(page.getByText("Playwright smoke todo")).isVisible();
 		});
 	}
 
@@ -165,41 +174,58 @@ class PlaywrightIT extends AbstractBaseTest {
 
 		try (Network network = Network.newNetwork()) {
 			Path nginxConfig = writeNginxConfig();
-			Path playwrightConfig = writePlaywrightConfig();
 
 			try (GenericContainer<?> web = new GenericContainer<>(NGINX_IMAGE).withNetwork(network)
 				.withNetworkAliases("otodo-web")
 				.withExposedPorts(8080)
 				.withFileSystemBind(clientDist.toString(), "/usr/share/nginx/html", BindMode.READ_ONLY)
 				.withFileSystemBind(nginxConfig.toString(), "/etc/nginx/conf.d/default.conf", BindMode.READ_ONLY)
-				.waitingFor(Wait.forHttp("/").forPort(8080));
-					GenericContainer<?> playwrightServer = new GenericContainer<>(PLAYWRIGHT_IMAGE).withNetwork(network)
-						.withExposedPorts(3000)
-						.withFileSystemBind(playwrightConfig.toString(), "/tmp/playwright-config.json",
-								BindMode.READ_ONLY)
-						.withCommand("npx", "--yes", "playwright@1.60.0", "launch-server", "--browser", "chromium",
-								"--config", "/tmp/playwright-config.json")
-						.waitingFor(Wait.forLogMessage(".*ws://.*", 1))) {
-
+				.waitingFor(Wait.forHttp("/").forPort(8080))) {
 				web.start();
-				playwrightServer.start();
+				if (Boolean.getBoolean("playwright.local")) {
+					this.appBaseUrl = "http://" + web.getHost() + ":" + web.getMappedPort(8080);
+					BrowserType.LaunchOptions options = new BrowserType.LaunchOptions().setHeadless(true);
+					String executable = System.getProperty("playwright.chromium.executable");
+					if (executable != null && !executable.isBlank()) {
+						options.setExecutablePath(Path.of(executable));
+					}
+					try (Playwright playwright = Playwright.create();
+							Browser browser = playwright.chromium().launch(options)) {
+						Page page = browser.newPage(new Browser.NewPageOptions().setViewportSize(1280, 720));
+						consumer.accept(page);
+					}
+					return;
+				}
 
-				String wsEndpoint = "ws://" + playwrightServer.getHost() + ":" + playwrightServer.getMappedPort(3000)
-						+ "/";
-				try (Playwright playwright = Playwright.create();
-						Browser browser = playwright.chromium().connect(wsEndpoint)) {
-					Page page = browser.newPage(new Browser.NewPageOptions().setViewportSize(1280, 720));
-					consumer.accept(page);
+				Path playwrightConfig = writePlaywrightConfig();
+				try (GenericContainer<?> playwrightServer = new GenericContainer<>(PLAYWRIGHT_IMAGE)
+					.withNetwork(network)
+					.withExposedPorts(3000)
+					.withFileSystemBind(playwrightConfig.toString(), "/tmp/playwright-config.json", BindMode.READ_ONLY)
+					.withCommand("npx", "--yes", "playwright@" + PLAYWRIGHT_VERSION, "launch-server", "--browser",
+							"chromium", "--config", "/tmp/playwright-config.json")
+					.withStartupTimeout(Duration.ofMinutes(3))
+					.waitingFor(Wait.forLogMessage(".*ws://.*", 1))) {
+
+					playwrightServer.start();
+
+					String wsEndpoint = "ws://" + playwrightServer.getHost() + ":"
+							+ playwrightServer.getMappedPort(3000) + "/";
+					try (Playwright playwright = Playwright.create();
+							Browser browser = playwright.chromium().connect(wsEndpoint)) {
+						Page page = browser.newPage(new Browser.NewPageOptions().setViewportSize(1280, 720));
+						consumer.accept(page);
+					}
 				}
 			}
 		}
 	}
 
-	private static String appUrl(String path) {
-		return "http://otodo-web:8080" + path;
+	private String appUrl(String path) {
+		return this.appBaseUrl + path;
 	}
 
-	private static void login(Page page, String email, String password, String expectedPath) {
+	private void login(Page page, String email, String password, String expectedPath) {
 		page.navigate(appUrl("/login"), new Page.NavigateOptions().setWaitUntil(WaitUntilState.NETWORKIDLE));
 
 		Locator loginButton = page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Login"));

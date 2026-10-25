@@ -81,3 +81,22 @@ cd client && npm run build
 cd server && .\mvnw.cmd test
 ```
 
+`mvn verify` also builds the installed client dependencies and runs the browser
+integration tests with PostgreSQL, nginx and Playwright containers. Run
+`npm install` in `client` first.
+
+The browser container and its Playwright server use the version declared by the
+Java Playwright library, so dependency updates keep both ends of the connection
+on the same protocol version.
+
+If the Playwright container registry is unavailable, the same browser tests can
+use Chromium installed on the host. PostgreSQL and nginx still run in Docker:
+
+```bash
+cd server
+./mvnw verify -Dplaywright.local=true -Dplaywright.chromium.executable=/path/to/chrome
+```
+
+Omit `playwright.chromium.executable` to use Playwright's installed Chromium.
+This option runs all browser assertions; it does not skip the browser tests.
+
